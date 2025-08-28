@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { useAdvancedVoiceAgent } from 'react-native-voice-agent';
-import { styles } from '../styles/demoStyles';
+import { demoStyles } from '../styles/demoStyles';
 import type { ConversationEntry, VoiceAgentProps } from '../types';
 
 export const AdvancedExample: React.FC<VoiceAgentProps> = ({ agent }) => {
@@ -88,85 +88,87 @@ export const AdvancedExample: React.FC<VoiceAgentProps> = ({ agent }) => {
   const conversationStatus = voice.getConversationStatus();
 
   return (
-    <View style={styles.demoContainer}>
-      <Text style={styles.demoTitle}>Advanced Voice Features</Text>
+    <View style={demoStyles.demoContainer}>
+      <Text style={demoStyles.demoTitle}>Advanced Voice Features</Text>
 
       {/* Status Information */}
-      <View style={styles.statusCard}>
-        <Text style={styles.statusTitle}>Status</Text>
-        <Text style={styles.statusText}>State: {downloadInfo.statusText}</Text>
-        <Text style={styles.statusText}>
+      <View style={demoStyles.statusCard}>
+        <Text style={demoStyles.statusTitle}>Status</Text>
+        <Text style={demoStyles.statusText}>
+          State: {downloadInfo.statusText}
+        </Text>
+        <Text style={demoStyles.statusText}>
           Permissions: {voice.hasPermissions ? '✓ Granted' : '✗ Required'}
         </Text>
-        <Text style={styles.statusText}>
+        <Text style={demoStyles.statusText}>
           Auto Mode: {voice.isAutoMode ? '✓ Enabled' : '✗ Disabled'}
         </Text>
-        <Text style={styles.statusText}>
+        <Text style={demoStyles.statusText}>
           In Conversation: {conversationStatus.isInConversation ? 'Yes' : 'No'}
         </Text>
       </View>
 
       {/* Controls */}
-      <View style={styles.controlsGrid}>
+      <View style={demoStyles.controlsGrid}>
         <TouchableOpacity
           style={[
-            styles.controlButton,
-            !voice.canStartRecording && styles.controlButtonDisabled,
+            demoStyles.controlButton,
+            !voice.canStartRecording && demoStyles.controlButtonDisabled,
           ]}
           onPress={() => voice.startConversation()}
           disabled={
             !voice.canStartRecording || conversationStatus.isInConversation
           }
         >
-          <Text style={styles.controlButtonText}>Start Chat</Text>
+          <Text style={demoStyles.controlButtonText}>Start Chat</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={styles.controlButton}
+          style={demoStyles.controlButton}
           onPress={() => voice.endConversation()}
           disabled={!conversationStatus.isInConversation}
         >
-          <Text style={styles.controlButtonText}>End Chat</Text>
+          <Text style={demoStyles.controlButtonText}>End Chat</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={[
-            styles.controlButton,
-            voice.isAutoMode && styles.controlButtonActive,
+            demoStyles.controlButton,
+            voice.isAutoMode && demoStyles.controlButtonActive,
           ]}
           onPress={() => voice.enableAutoMode(!voice.isAutoMode)}
         >
-          <Text style={styles.controlButtonText}>Auto Mode</Text>
+          <Text style={demoStyles.controlButtonText}>Auto Mode</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={styles.controlButton}
+          style={demoStyles.controlButton}
           onPress={() => {
             voice.clearHistory();
             setConversationLog([]);
           }}
         >
-          <Text style={styles.controlButtonText}>Clear All</Text>
+          <Text style={demoStyles.controlButtonText}>Clear All</Text>
         </TouchableOpacity>
       </View>
 
       {/* Conversation Log */}
-      <View style={styles.conversationLog}>
-        <Text style={styles.logTitle}>Conversation Log</Text>
-        <ScrollView style={styles.logScrollView}>
+      <View style={demoStyles.conversationLog}>
+        <Text style={demoStyles.logTitle}>Conversation Log</Text>
+        <ScrollView style={demoStyles.logScrollView}>
           {conversationLog.map((entry, index) => (
             <View
               key={index}
               style={[
-                styles.logEntry,
+                demoStyles.logEntry,
                 entry.type === 'user'
-                  ? styles.logEntryUser
+                  ? demoStyles.logEntryUser
                   : entry.type === 'thinking'
-                    ? styles.logEntryThinking
-                    : styles.logEntryAssistant,
+                    ? demoStyles.logEntryThinking
+                    : demoStyles.logEntryAssistant,
               ]}
             >
-              <Text style={styles.logEntryType}>
+              <Text style={demoStyles.logEntryType}>
                 {entry.type === 'user'
                   ? 'You'
                   : entry.type === 'thinking'
@@ -176,14 +178,14 @@ export const AdvancedExample: React.FC<VoiceAgentProps> = ({ agent }) => {
               </Text>
               <Text
                 style={[
-                  styles.logEntryText,
-                  entry.type === 'thinking' && styles.logEntryThinkingText,
+                  demoStyles.logEntryText,
+                  entry.type === 'thinking' && demoStyles.logEntryThinkingText,
                 ]}
               >
                 {entry.text}
               </Text>
               {entry.type !== 'thinking' && (
-                <Text style={styles.logEntryTime}>
+                <Text style={demoStyles.logEntryTime}>
                   {entry.timestamp.toLocaleTimeString()}
                 </Text>
               )}

@@ -4,7 +4,7 @@ import {
   AdvancedVoiceAgentButton,
   useAdvancedVoiceAgent,
 } from 'react-native-voice-agent';
-import { styles } from '../styles/demoStyles';
+import { demoStyles } from '../styles/demoStyles';
 import type { VoiceAgentProps, PresetPrompt } from '../types';
 
 const presetPrompts: PresetPrompt[] = [
@@ -43,26 +43,27 @@ export const CustomExample: React.FC<VoiceAgentProps> = ({ agent }) => {
   };
 
   return (
-    <View style={styles.demoContainer}>
-      <Text style={styles.demoTitle}>Custom Personalities</Text>
-      <Text style={styles.demoDescription}>
+    <View style={demoStyles.demoContainer}>
+      <Text style={demoStyles.demoTitle}>Custom Personalities</Text>
+      <Text style={demoStyles.demoDescription}>
         Try different AI personalities by changing the system prompt.
       </Text>
 
-      <View style={styles.promptGrid}>
+      <View style={demoStyles.promptGrid}>
         {presetPrompts.map((preset, index) => (
           <TouchableOpacity
             key={index}
             style={[
-              styles.promptButton,
-              systemPrompt === preset.prompt && styles.promptButtonActive,
+              demoStyles.promptButton,
+              systemPrompt === preset.prompt && demoStyles.promptButtonActive,
             ]}
             onPress={() => applyPrompt(preset.prompt)}
           >
             <Text
               style={[
-                styles.promptButtonText,
-                systemPrompt === preset.prompt && styles.promptButtonTextActive,
+                demoStyles.promptButtonText,
+                systemPrompt === preset.prompt &&
+                  demoStyles.promptButtonTextActive,
               ]}
             >
               {preset.name}
@@ -71,9 +72,9 @@ export const CustomExample: React.FC<VoiceAgentProps> = ({ agent }) => {
         ))}
       </View>
 
-      <View style={styles.currentPromptContainer}>
-        <Text style={styles.currentPromptTitle}>Current Personality:</Text>
-        <Text style={styles.currentPromptText}>{systemPrompt}</Text>
+      <View style={demoStyles.currentPromptContainer}>
+        <Text style={demoStyles.currentPromptTitle}>Current Personality:</Text>
+        <Text style={demoStyles.currentPromptText}>{systemPrompt}</Text>
       </View>
 
       <AdvancedVoiceAgentButton

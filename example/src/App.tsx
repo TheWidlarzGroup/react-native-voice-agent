@@ -6,7 +6,12 @@ import {
   SafeAreaView,
   TouchableOpacity,
 } from 'react-native';
-import { BasicExample, AdvancedExample, CustomExample } from './components';
+import {
+  BasicExample,
+  AdvancedExample,
+  CustomExample,
+  OnlineExample,
+} from './components';
 import { useVoiceAgent } from './hooks/useVoiceAgent';
 import { appStyles } from './styles/appStyles';
 import type { DemoType } from './types';
@@ -23,6 +28,8 @@ export default function App() {
         return <AdvancedExample agent={agent} />;
       case 'custom':
         return <CustomExample agent={agent} />;
+      case 'online':
+        return <OnlineExample agent={agent} />;
       default:
         return <BasicExample agent={agent} />;
     }
@@ -32,7 +39,9 @@ export default function App() {
     <SafeAreaView style={appStyles.container}>
       <View style={appStyles.header}>
         <Text style={appStyles.title}>React Native Voice Agent</Text>
-        <Text style={appStyles.subtitle}>Offline AI Voice Assistant Demo</Text>
+        <Text style={appStyles.subtitle}>
+          Offline & Online AI Voice Assistant Demo
+        </Text>
       </View>
 
       <View style={appStyles.tabContainer}>
@@ -82,6 +91,22 @@ export default function App() {
             ]}
           >
             Custom
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            appStyles.tab,
+            currentDemo === 'online' && appStyles.activeTab,
+          ]}
+          onPress={() => setCurrentDemo('online')}
+        >
+          <Text
+            style={[
+              appStyles.tabText,
+              currentDemo === 'online' && appStyles.activeTabText,
+            ]}
+          >
+            Online
           </Text>
         </TouchableOpacity>
       </View>

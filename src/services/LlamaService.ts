@@ -1,6 +1,6 @@
 import { initLlama } from 'llama.rn';
 import type {
-  LlamaOptions,
+  OfflineLlamaOptions,
   ConversationMessage,
   LlamaInstance,
   ModelDownloadProgress,
@@ -12,12 +12,12 @@ export class LlamaService {
   private llamaInstance: LlamaInstance | null = null;
   private isInitialized = false;
   private modelDownloader: ModelDownloader;
-  private options: LlamaOptions;
+  private options: OfflineLlamaOptions;
   private conversationHistory: ConversationMessage[] = [];
   private systemPrompt = '';
   private maxHistoryLength = 10;
 
-  constructor(options: LlamaOptions) {
+  constructor(options: OfflineLlamaOptions) {
     this.options = options;
     this.modelDownloader = ModelDownloader.getInstance();
   }
@@ -235,13 +235,19 @@ export class LlamaService {
     this.trimHistory();
   }
 
-  async updateModelSettings(settings: Partial<LlamaOptions>): Promise<void> {
+  async updateModelSettings(
+    settings: Partial<OfflineLlamaOptions>
+  ): Promise<void> {
     this.options = { ...this.options, ...settings };
 
     // Settings will apply to next generation if model is already initialized
   }
 
-  getModelInfo(): { name: string; isLoaded: boolean; settings: LlamaOptions } {
+  getModelInfo(): {
+    name: string;
+    isLoaded: boolean;
+    settings: OfflineLlamaOptions;
+  } {
     return {
       name: this.options.modelName,
       isLoaded: this.isInitialized,

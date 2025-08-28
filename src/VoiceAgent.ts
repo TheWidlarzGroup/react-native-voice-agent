@@ -8,9 +8,11 @@ import type {
   VoiceSettings,
   ModelDownloadProgress,
   VoiceAgentStore,
+  LLMConfig,
 } from './types';
 import { WhisperService } from './services/WhisperService';
 import { LlamaService } from './services/LlamaService';
+import { OnlineLLMService } from './services/OnlineLLMService';
 import { TTSService } from './services/TTSService';
 import { AudioRecordingService } from './services/AudioRecordingService';
 import {
@@ -22,7 +24,7 @@ import {
 export class VoiceAgentImpl implements IVoiceAgent {
   private config: VoiceAgentConfig;
   private whisperService: WhisperService;
-  private llamaService: LlamaService;
+  private llamaService: LlamaService | OnlineLLMService;
   private ttsService: TTSService;
   private audioRecordingService: AudioRecordingService;
   private audioSessionManager: AudioSessionManager;
@@ -44,13 +46,20 @@ export class VoiceAgentImpl implements IVoiceAgent {
       enableGPUAcceleration: config.enableGPUAcceleration,
     });
 
-    this.llamaService = new LlamaService({
-      modelName: config.llamaModel.name,
-      maxTokens: 256,
-      temperature: 0.7,
-      topP: 0.9,
-      enableGPUAcceleration: config.enableGPUAcceleration,
-    });
+    // Initialize LLM service based on configuration
+    if (config.llmConfig.provider === 'offline') {
+      this.llamaService = new LlamaService({
+        modelName: config.llmConfig.model,
+        maxTokens: config.llmConfig.maxTokens || 256,
+        temperature: config.llmConfig.temperature || 0.7,
+        topP: config.llmConfig.topP || 0.9,
+        enableGPUAcceleration:
+          config.llmConfig.enableGPUAcceleration ??
+          config.enableGPUAcceleration,
+      });
+    } else {
+      this.llamaService = new OnlineLLMService(config.llmConfig);
+    }
 
     this.ttsService = new TTSService({
       ...config.voiceSettings,
@@ -543,14 +552,8 @@ export class VoiceAgentBuilderImpl implements VoiceAgentBuilder {
     return this;
   }
 
-  withLlama(modelName: string): VoiceAgentBuilder {
-    // For now, we'll create a basic model configuration
-    // In a real implementation, you might want to validate against supported models
-    this.config.llamaModel = {
-      name: modelName,
-      size: 1800 * 1024 * 1024, // 1.8GB estimate
-      quantization: 'Q4_K_M',
-    };
+  withLLM(llmConfig: LLMConfig): VoiceAgentBuilder {
+    this.config.llmConfig = llmConfig;
     return this;
   }
 
@@ -587,13 +590,15 @@ export class VoiceAgentBuilderImpl implements VoiceAgentBuilder {
       );
     }
 
-    if (!this.config.llamaModel) {
-      throw new Error('Llama model is required. Use withLlama() to set it.');
+    if (!this.config.llmConfig) {
+      throw new Error(
+        'LLM configuration is required. Use withLLM() to set it.'
+      );
     }
 
     const finalConfig: VoiceAgentConfig = {
       whisperModel: this.config.whisperModel!,
-      llamaModel: this.config.llamaModel!,
+      llmConfig: this.config.llmConfig!,
       systemPrompt: this.config.systemPrompt!,
       voiceSettings: this.config.voiceSettings!,
       enableGPUAcceleration: this.config.enableGPUAcceleration!,
