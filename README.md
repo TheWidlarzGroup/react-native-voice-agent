@@ -53,7 +53,7 @@ npm install react-native-audio-agent
 yarn add react-native-audio-agent
 
 # Install peer dependencies
-npm install react-native-permissions react-native-tts react-native-fs
+npm install react-native-permissions react-native-tts react-native-fs llama.rn whisper.rn react-native-audio-recorder-player react-native-nitro-modules
 ```
 
 ### iOS Setup
