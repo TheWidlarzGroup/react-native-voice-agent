@@ -76,6 +76,24 @@ Add permissions to `android/app/src/main/AndroidManifest.xml`:
 <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 ```
 
+## ⚠️ Important: Testing on Real Devices
+
+**This library must be tested on real physical devices, not emulators or simulators.**
+
+The voice agent downloads and runs large AI models (Whisper and Llama) locally on the device. Emulators and simulators:
+
+- Lack the computational resources to run these models effectively
+- May not properly handle model downloading and storage
+- Cannot accurately simulate real-world performance and memory constraints
+- May have audio recording/playback limitations
+
+For the best development and testing experience, always use:
+
+- **iOS**: Real iPhone/iPad devices
+- **Android**: Physical Android devices
+
+The models will be downloaded automatically on first use and cached locally for subsequent sessions.
+
 ## 🚀 Tech Stack
 
 - **STT**: [whisper.rn](https://github.com/mybigday/whisper.rn) with tiny.en model (39MB, 94.3% accuracy)

@@ -68,6 +68,24 @@ To run the example app on iOS:
 yarn example ios
 ```
 
+## ⚠️ Important: Testing Requirements
+
+**Always test on real physical devices, not emulators or simulators.**
+
+The React Native Voice Agent downloads and runs large AI models (Whisper and Llama) locally on the device. This means:
+
+- **Emulators/Simulators are not suitable** for development or testing
+- Models require significant computational resources and storage
+- Audio recording/playback may not work correctly on virtual devices
+- Performance characteristics cannot be accurately assessed on emulated hardware
+
+### Required for Development:
+
+- **iOS**: Real iPhone/iPad devices connected via USB or wireless debugging
+- **Android**: Physical Android devices with USB debugging enabled
+
+The first time you run the app, it will download the required models (can be 1-2GB total) and cache them locally. Subsequent runs will use the cached models.
+
 To confirm that the app is running with the new architecture, you can check the Metro logs for a message like this:
 
 ```sh
@@ -106,12 +124,14 @@ yarn test
 When contributing to the voice agent library, please follow these architectural principles:
 
 #### 🏗️ Service Layer Architecture
+
 - **WhisperService**: Handles speech-to-text transcription
 - **LlamaService**: Manages LLM inference and conversation context
 - **TTSService**: Controls text-to-speech synthesis
 - **ModelDownloader**: Handles AI model downloading and caching
 
 #### 🎯 Builder Pattern Usage
+
 All services use a builder pattern for configuration:
 
 ```typescript
@@ -124,17 +144,21 @@ const agent = VoiceAgent.create()
 ```
 
 #### 📱 React Hooks Integration
+
 Provide React hooks for easy integration:
+
 - `useVoiceAgent`: Basic voice agent functionality
 - `useAdvancedVoiceAgent`: Advanced features with fine-grained control
 - `usePermissions`: Audio/microphone permission management
 
 #### 🔒 Type Safety
+
 - Use strict TypeScript throughout
 - Define comprehensive interfaces in `src/types/index.ts`
 - Ensure all public APIs are properly typed
 
 #### 📂 File Structure Guidelines
+
 ```
 src/
 ├── VoiceAgent.ts           # Main class and builder
