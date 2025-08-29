@@ -123,13 +123,21 @@ export class VoiceAgentImpl implements IVoiceAgent {
       };
 
       // Initialize Whisper
-      await this.whisperService.initialize(onDownloadProgress);
+      try {
+        await this.whisperService.initialize(onDownloadProgress);
+      } catch (whisperError) {
+        throw new Error(`Whisper initialization failed: ${whisperError}`);
+      }
 
       // Initialize Llama
-      await this.llamaService.initialize(
-        this.config.systemPrompt,
-        onDownloadProgress
-      );
+      try {
+        await this.llamaService.initialize(
+          this.config.systemPrompt,
+          onDownloadProgress
+        );
+      } catch (llamaError) {
+        throw new Error(`LLM service initialization failed: ${llamaError}`);
+      }
 
       // Initialize TTS
       await this.ttsService.initialize();

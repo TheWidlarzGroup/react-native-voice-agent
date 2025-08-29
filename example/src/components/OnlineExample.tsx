@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import {
   View,
   Text,
@@ -72,31 +72,36 @@ export function OnlineExample({ agent: _defaultAgent }: VoiceAgentProps) {
   const [conversation, setConversation] = useState<ConversationEntry[]>([]);
   const [isConfigured, setIsConfigured] = useState(false);
 
-  // Create a default empty agent for the hook when agent is null
-  const hookAgent =
-    agent ||
-    ({
-      initialize: async () => {},
-      startListening: async () => {},
-      stopListening: () => {},
-      processAudio: async () => '',
-      generateResponse: async () => '',
-      speak: async () => {},
-      interruptSpeech: () => {},
-      setSystemPrompt: () => {},
-      clearHistory: () => {},
-      dispose: async () => {},
-      getState: () => ({
-        isListening: false,
-        isThinking: false,
-        isSpeaking: false,
-        transcript: '',
-        response: '',
-        error: null,
-        isInitialized: false,
-      }),
-      subscribe: () => () => {},
-    } as VoiceAgentInterface);
+  // Create a stable dummy agent that won't cause re-renders
+  const dummyAgent = useMemo(
+    () =>
+      ({
+        initialize: async () => {},
+        startListening: async () => {},
+        stopListening: () => {},
+        processAudio: async () => '',
+        generateResponse: async () => '',
+        speak: async () => {},
+        interruptSpeech: () => {},
+        setSystemPrompt: () => {},
+        clearHistory: () => {},
+        dispose: async () => {},
+        getState: () => ({
+          isListening: false,
+          isThinking: false,
+          isSpeaking: false,
+          transcript: '',
+          response: '',
+          error: null,
+          isInitialized: false,
+        }),
+        subscribe: () => () => {},
+      }) as VoiceAgentInterface,
+    []
+  );
+
+  // Only use real agent when it's configured and ready
+  const activeAgent = isConfigured && agent ? agent : dummyAgent;
 
   const {
     startListening,
@@ -109,40 +114,50 @@ export function OnlineExample({ agent: _defaultAgent }: VoiceAgentProps) {
     error,
     isInitialized,
     downloadProgress,
-  } = useVoiceAgent(hookAgent);
+  } = useVoiceAgent(activeAgent);
 
   const { checkMicrophonePermission, requestMicrophonePermission } =
     usePermissions();
 
+  // Track the last processed values to prevent duplicates
+  const lastTranscriptRef = useRef<string>('');
+  const lastResponseRef = useRef<string>('');
+
   useEffect(() => {
-    // Update conversation when we get new transcript or response
-    if (
-      transcript &&
-      transcript !== conversation[conversation.length - 1]?.text
-    ) {
+    // Update conversation when we get new transcript
+    if (transcript && transcript !== lastTranscriptRef.current) {
+      lastTranscriptRef.current = transcript;
       setConversation((prev) => [
         ...prev.filter((entry) => entry.type !== 'thinking'),
         { type: 'user', text: transcript, timestamp: new Date() },
       ]);
     }
+  }, [transcript]);
 
-    if (
-      isThinking &&
-      conversation[conversation.length - 1]?.type !== 'thinking'
-    ) {
-      setConversation((prev) => [
-        ...prev,
-        { type: 'thinking', text: 'Thinking...', timestamp: new Date() },
-      ]);
+  useEffect(() => {
+    if (isThinking) {
+      setConversation((prev) => {
+        // Only add thinking if it's not already the last entry
+        if (prev[prev.length - 1]?.type !== 'thinking') {
+          return [
+            ...prev,
+            { type: 'thinking', text: 'Thinking...', timestamp: new Date() },
+          ];
+        }
+        return prev;
+      });
     }
+  }, [isThinking]);
 
-    if (response && response !== conversation[conversation.length - 1]?.text) {
+  useEffect(() => {
+    if (response && response !== lastResponseRef.current) {
+      lastResponseRef.current = response;
       setConversation((prev) => [
         ...prev.filter((entry) => entry.type !== 'thinking'),
         { type: 'assistant', text: response, timestamp: new Date() },
       ]);
     }
-  }, [transcript, response, isThinking, conversation]);
+  }, [response]);
 
   const configureAgent = async () => {
     if (!apiKey.trim()) {
@@ -151,17 +166,20 @@ export function OnlineExample({ agent: _defaultAgent }: VoiceAgentProps) {
     }
 
     try {
+      const llmConfig = {
+        provider: selectedProvider.provider,
+        apiKey: apiKey.trim(),
+        model: selectedModel as any, // Type assertion since we know the model is valid
+        maxTokens: 256,
+        temperature: 0.7,
+        topP: 0.9,
+        timeout: 30000,
+      };
+
       const newAgent = VoiceAgent.create()
-        .withWhisper('base.en')
-        .withLLM({
-          provider: selectedProvider.provider,
-          apiKey: apiKey.trim(),
-          model: selectedModel as any, // Type assertion since we know the model is valid
-          maxTokens: 256,
-          temperature: 0.7,
-          topP: 0.9,
-          timeout: 30000,
-        })
+        .withWhisper('tiny.en') // Use smaller model to avoid memory issues
+        .enableGPUAcceleration(false) // Disable GPU to avoid Metal memory issues
+        .withLLM(llmConfig)
         .withSystemPrompt(systemPrompt)
         .withVoiceSettings({
           rate: 0.5,
@@ -174,6 +192,7 @@ export function OnlineExample({ agent: _defaultAgent }: VoiceAgentProps) {
       setIsConfigured(true);
       setConversation([]);
     } catch (configError) {
+      console.error('Failed to configure agent:', configError);
       Alert.alert('Error', `Failed to configure agent: ${configError}`);
     }
   };
@@ -211,6 +230,26 @@ export function OnlineExample({ agent: _defaultAgent }: VoiceAgentProps) {
     setIsConfigured(false);
     setApiKey('');
     setConversation([]);
+  };
+
+  const clearModelsAndReset = async () => {
+    try {
+      // Clear any cached models
+      const RNFS = require('react-native-fs');
+      const documentsPath = RNFS.DocumentDirectoryPath;
+      const modelsDir = `${documentsPath}/models`;
+
+      if (await RNFS.exists(modelsDir)) {
+        await RNFS.unlink(modelsDir);
+        console.log('Cleared models directory');
+      }
+
+      resetConfiguration();
+      Alert.alert('Success', 'Models cleared. Try configuring again.');
+    } catch (error) {
+      console.error('Failed to clear models:', error);
+      Alert.alert('Error', 'Failed to clear models');
+    }
   };
 
   if (!isConfigured) {
@@ -320,6 +359,15 @@ export function OnlineExample({ agent: _defaultAgent }: VoiceAgentProps) {
           onPress={configureAgent}
         >
           <Text style={demoStyles.primaryButtonText}>Configure Agent</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[demoStyles.secondaryButton, { marginTop: 10 }]}
+          onPress={clearModelsAndReset}
+        >
+          <Text style={demoStyles.secondaryButtonText}>
+            Clear Models & Reset
+          </Text>
         </TouchableOpacity>
 
         <View style={demoStyles.infoBox}>
