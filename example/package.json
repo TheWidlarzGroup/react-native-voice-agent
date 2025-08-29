@@ -1,5 +1,5 @@
 {
-  "name": "react-native-voice-agent-example",
+  "name": "react-native-voice-audio-example",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -13,12 +13,12 @@
     "llama.rn": "^0.6.10",
     "react": "19.0.0",
     "react-native": "0.79.2",
+    "react-native-audio-agent": "*",
     "react-native-audio-recorder-player": "^4.3.0",
     "react-native-fs": "^2.20.0",
     "react-native-nitro-modules": "^0.28.1",
     "react-native-permissions": "^4.1.5",
     "react-native-tts": "^4.1.1",
-    "react-native-voice-agent": "*",
     "whisper.rn": "^0.4.3"
   },
   "devDependencies": {

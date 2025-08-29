@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, Alert } from 'react-native';
-import { AdvancedVoiceAgentButton } from 'react-native-voice-agent';
+import { AdvancedVoiceAgentButton } from 'react-native-audio-agent';
 import { styles } from '../styles/demoStyles';
 import type { VoiceAgentProps } from '../types';
 

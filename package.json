@@ -1,5 +1,5 @@
 {
-  "name": "react-native-voice-agent",
+  "name": "react-native-audio-agent",
   "version": "0.1.0",
   "description": "Offline react native package for voice agents",
   "main": "./lib/module/index.js",
@@ -32,7 +32,7 @@
     "!**/.*"
   ],
   "scripts": {
-    "example": "yarn workspace react-native-voice-agent-example",
+    "example": "yarn workspace react-native-audio-agent-example",
     "test": "jest",
     "typecheck": "tsc",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
@@ -47,14 +47,14 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/TheWidlarzGroup/react-native-voice-agent.git"
+    "url": "git+https://github.com/TheWidlarzGroup/react-native-audio-agent.git"
   },
   "author": "TheWidlarzGroup <hi@thewidlarzgroup.com> (https://github.com/TheWidlarzGroup)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/TheWidlarzGroup/react-native-voice-agent/issues"
+    "url": "https://github.com/TheWidlarzGroup/react-native-audio-agent/issues"
   },
-  "homepage": "https://github.com/TheWidlarzGroup/react-native-voice-agent#readme",
+  "homepage": "https://github.com/TheWidlarzGroup/react-native-audio-agent#readme",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },

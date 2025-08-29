@@ -9,7 +9,7 @@ We want this community to be friendly and respectful to each other. Please follo
 This library provides a complete offline AI voice agent for React Native applications, featuring:
 
 - **Speech-to-Text (STT)**: Using Whisper models for accurate transcription
-- **Large Language Model (LLM)**: Using Llama models for intelligent responses  
+- **Large Language Model (LLM)**: Using Llama models for intelligent responses
 - **Text-to-Speech (TTS)**: Using native device TTS engines
 - **Voice Activity Detection (VAD)**: Smart detection of speech start/end
 - **Model Management**: Automatic downloading and caching of AI models
@@ -44,9 +44,9 @@ It is configured to use the local version of the library, so any changes you mak
 
 #### Native Development
 
-If you want to use Android Studio or XCode to edit the native code, you can open the `example/android` or `example/ios` directories respectively in those editors. To edit the Objective-C or Swift files, open `example/ios/VoiceAgentExample.xcworkspace` in XCode and find the source files at `Pods > Development Pods > react-native-voice-agent`.
+If you want to use Android Studio or XCode to edit the native code, you can open the `example/android` or `example/ios` directories respectively in those editors. To edit the Objective-C or Swift files, open `example/ios/VoiceAgentExample.xcworkspace` in XCode and find the source files at `Pods > Development Pods > react-native-audio-agent`.
 
-To edit the Java or Kotlin files, open `example/android` in Android studio and find the source files at `react-native-voice-agent` under `Android`.
+To edit the Java or Kotlin files, open `example/android` in Android studio and find the source files at `react-native-audio-agent` under `Android`.
 
 You can use various commands from the root directory to work with the project.
 

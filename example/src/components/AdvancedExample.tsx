@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
-import { useAdvancedVoiceAgent } from 'react-native-voice-agent';
+import { useAdvancedVoiceAgent } from 'react-native-audio-agent';
 import { styles } from '../styles/demoStyles';
 import type { ConversationEntry, VoiceAgentProps } from '../types';
 

@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import {
   AdvancedVoiceAgentButton,
   useAdvancedVoiceAgent,
-} from 'react-native-voice-agent';
+} from 'react-native-audio-agent';
 import { styles } from '../styles/demoStyles';
 import type { VoiceAgentProps, PresetPrompt } from '../types';
 

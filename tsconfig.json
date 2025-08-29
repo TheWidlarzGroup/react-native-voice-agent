@@ -2,7 +2,7 @@
   "compilerOptions": {
     "rootDir": ".",
     "paths": {
-      "react-native-voice-agent": ["./src/index"]
+      "react-native-audio-agent": ["./src/index"]
     },
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,

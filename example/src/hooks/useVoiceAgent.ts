@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { Platform } from 'react-native';
-import { VoiceAgent } from 'react-native-voice-agent';
+import { VoiceAgent } from 'react-native-audio-agent';
 
 export const useVoiceAgent = () => {
   const agent = useMemo(() => {

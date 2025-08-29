@@ -17,7 +17,7 @@ React Native library that provides offline AI voice assistant experience using W
 ## 🎬 Quick Demo
 
 ```typescript
-import { VoiceAgent, useVoiceAgent } from 'react-native-voice-agent';
+import { VoiceAgent, useVoiceAgent } from 'react-native-audio-agent';
 
 // Create agent with builder pattern
 const agent = VoiceAgent
@@ -48,9 +48,9 @@ function VoiceChat() {
 ## 📦 Installation
 
 ```bash
-npm install react-native-voice-agent
+npm install react-native-audio-agent
 # or
-yarn add react-native-voice-agent
+yarn add react-native-audio-agent
 
 # Install peer dependencies
 npm install react-native-permissions react-native-tts react-native-fs
@@ -171,7 +171,7 @@ voice.getDownloadInfo(); // Model download details
 ### Basic Voice Chat
 
 ```typescript
-import { VoiceAgent, VoiceAgentButton } from 'react-native-voice-agent';
+import { VoiceAgent, VoiceAgentButton } from 'react-native-audio-agent';
 
 const agent = VoiceAgent
   .create()
@@ -253,8 +253,8 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 ### Development Setup
 
 ```bash
-git clone https://github.com/TheWidlarzGroup/react-native-voice-agent
-cd react-native-voice-agent
+git clone https://github.com/TheWidlarzGroup/react-native-audio-agent
+cd react-native-audio-agent
 yarn install
 
 # Run example app

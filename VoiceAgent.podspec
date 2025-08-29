@@ -11,7 +11,7 @@ Pod::Spec.new do |s|
   s.authors      = package["author"]
 
   s.platforms    = { :ios => min_ios_version_supported }
-  s.source       = { :git => "https://github.com/TheWidlarzGroup/react-native-voice-agent.git", :tag => "#{s.version}" }
+  s.source       = { :git => "https://github.com/TheWidlarzGroup/react-native-audio-agent.git", :tag => "#{s.version}" }
 
   s.source_files = "ios/**/*.{h,m,mm,cpp}"
   s.private_header_files = "ios/**/*.h"
