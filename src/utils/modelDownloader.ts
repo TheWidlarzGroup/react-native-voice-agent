@@ -34,12 +34,16 @@ export class ModelDownloader {
   }
 
   private getLlamaModelUrl(modelName: string): string {
-    // Use a smaller model that actually exists for testing
-    if (modelName === 'llama-3.2-3b-instruct-q4_k_m.gguf') {
-      // Use a smaller phi-3 model for testing
-      return 'https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf/resolve/main/Phi-3-mini-4k-instruct-q4.gguf';
-    }
-    return `https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf/resolve/main/${modelName}`;
+    const modelUrls: Record<string, string> = {
+      'llama-3.2-3b-instruct-q4_k_m.gguf':
+        'https://huggingface.co/bartowski/Llama-3.2-3B-Instruct-GGUF/resolve/main/Llama-3.2-3B-Instruct-Q4_K_M.gguf',
+      'llama-3.2-1b-instruct-q4_k_m.gguf':
+        'https://huggingface.co/bartowski/Llama-3.2-1B-Instruct-GGUF/resolve/main/Llama-3.2-1B-Instruct-Q4_K_M.gguf',
+      'default':
+        'https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf/resolve/main/Phi-3-mini-4k-instruct-q4.gguf',
+    };
+
+    return modelUrls[modelName] || modelUrls.default!;
   }
 
   private async ensureModelDirectory(): Promise<void> {
@@ -66,6 +70,17 @@ export class ModelDownloader {
 
   getModelPath(modelName: string): string {
     return `${this.getModelDirectory()}/${modelName}`;
+  }
+
+  async clearCorruptedModel(modelName: string): Promise<void> {
+    const modelPath = this.getModelPath(modelName);
+    try {
+      if (await RNFS.exists(modelPath)) {
+        await RNFS.unlink(modelPath);
+      }
+    } catch (error) {
+      console.error('Error clearing corrupted model:', error);
+    }
   }
 
   async downloadWhisperModel(

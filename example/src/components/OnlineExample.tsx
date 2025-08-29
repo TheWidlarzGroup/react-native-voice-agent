@@ -119,6 +119,17 @@ export function OnlineExample({ agent: _defaultAgent }: VoiceAgentProps) {
   const { checkMicrophonePermission, requestMicrophonePermission } =
     usePermissions();
 
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (agent) {
+        agent.dispose().catch((disposeError) => {
+          console.error('Error disposing agent on unmount:', disposeError);
+        });
+      }
+    };
+  }, [agent]);
+
   // Track the last processed values to prevent duplicates
   const lastTranscriptRef = useRef<string>('');
   const lastResponseRef = useRef<string>('');
@@ -166,15 +177,26 @@ export function OnlineExample({ agent: _defaultAgent }: VoiceAgentProps) {
     }
 
     try {
+      const trimmedApiKey = apiKey.trim();
+
+      // Validate API key format
+      if (!trimmedApiKey || trimmedApiKey.length < 10) {
+        Alert.alert('Error', 'Please enter a valid API key');
+        return;
+      }
+
       const llmConfig = {
         provider: selectedProvider.provider,
-        apiKey: apiKey.trim(),
+        apiKey: trimmedApiKey,
         model: selectedModel as any, // Type assertion since we know the model is valid
         maxTokens: 256,
         temperature: 0.7,
         topP: 0.9,
         timeout: 30000,
       };
+
+      console.log('API Key length:', trimmedApiKey.length);
+      console.log('API Key starts with:', trimmedApiKey.substring(0, 10));
 
       const newAgent = VoiceAgent.create()
         .withWhisper('tiny.en') // Use smaller model to avoid memory issues
@@ -225,29 +247,61 @@ export function OnlineExample({ agent: _defaultAgent }: VoiceAgentProps) {
     }
   };
 
-  const resetConfiguration = () => {
+  const resetConfiguration = async () => {
+    // Properly dispose of existing agent
+    if (agent) {
+      try {
+        await agent.dispose();
+      } catch (disposeError) {
+        console.error('Error disposing agent:', disposeError);
+      }
+    }
+
     setAgent(null);
     setIsConfigured(false);
     setApiKey('');
     setConversation([]);
+
+    // Force garbage collection
+    if (typeof global !== 'undefined' && global.gc) {
+      global.gc();
+    }
   };
 
   const clearModelsAndReset = async () => {
     try {
+      // Dispose of existing agent first
+      if (agent) {
+        try {
+          await agent.dispose();
+        } catch (cleanupError) {
+          console.error('Error disposing agent during cleanup:', cleanupError);
+        }
+      }
+
       // Clear any cached models
       const RNFS = require('react-native-fs');
       const documentsPath = RNFS.DocumentDirectoryPath;
-      const modelsDir = `${documentsPath}/models`;
 
+      // Clear models directory
+      const modelsDir = `${documentsPath}/models`;
       if (await RNFS.exists(modelsDir)) {
         await RNFS.unlink(modelsDir);
         console.log('Cleared models directory');
       }
 
-      resetConfiguration();
+      // Also clear VoiceAgentModels directory
+      const voiceModelsDir = `${RNFS.LibraryDirectoryPath}/VoiceAgentModels`;
+      if (await RNFS.exists(voiceModelsDir)) {
+        await RNFS.unlink(voiceModelsDir);
+        console.log('Cleared VoiceAgentModels directory');
+      }
+
+      await resetConfiguration();
+
       Alert.alert('Success', 'Models cleared. Try configuring again.');
-    } catch (error) {
-      console.error('Failed to clear models:', error);
+    } catch (clearError) {
+      console.error('Failed to clear models:', clearError);
       Alert.alert('Error', 'Failed to clear models');
     }
   };
@@ -362,7 +416,7 @@ export function OnlineExample({ agent: _defaultAgent }: VoiceAgentProps) {
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[demoStyles.secondaryButton, { marginTop: 10 }]}
+          style={[demoStyles.secondaryButton, demoStyles.marginTop10]}
           onPress={clearModelsAndReset}
         >
           <Text style={demoStyles.secondaryButtonText}>

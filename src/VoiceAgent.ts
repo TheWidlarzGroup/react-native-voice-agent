@@ -110,6 +110,11 @@ export class VoiceAgentImpl implements IVoiceAgent {
     try {
       this.store.getState().setError(null);
 
+      // Force garbage collection before initialization to free up memory
+      if (typeof global !== 'undefined' && global.gc) {
+        global.gc();
+      }
+
       // Configure audio session
       await this.audioSessionManager.configureAudioSession({
         category: 'playAndRecord',
@@ -122,32 +127,93 @@ export class VoiceAgentImpl implements IVoiceAgent {
         this.store.getState().setDownloadProgress(progress);
       };
 
-      // Initialize Whisper
+      let whisperInitialized = false;
+
       try {
         await this.whisperService.initialize(onDownloadProgress);
+        whisperInitialized = true;
       } catch (whisperError) {
-        throw new Error(`Whisper initialization failed: ${whisperError}`);
+        if (typeof global !== 'undefined' && global.gc) {
+          global.gc();
+        }
+
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+
+        try {
+          await this.whisperService.initializeWithFallback();
+          whisperInitialized = true;
+        } catch (fallbackError) {
+          this.store
+            .getState()
+            .setError('Voice input unavailable due to memory constraints.');
+        }
       }
 
-      // Initialize Llama
       try {
         await this.llamaService.initialize(
           this.config.systemPrompt,
           onDownloadProgress
         );
       } catch (llamaError) {
-        throw new Error(`LLM service initialization failed: ${llamaError}`);
+        if (this.config.llmConfig.provider !== 'offline') {
+          throw new Error(
+            `Online LLM service initialization failed: ${llamaError}`
+          );
+        }
+
+        if (typeof global !== 'undefined' && global.gc) {
+          global.gc();
+        }
+
+        throw new Error(
+          'LLM initialization failed due to insufficient memory. Try closing other apps or use online models instead.'
+        );
       }
 
-      // Initialize TTS
-      await this.ttsService.initialize();
+      // Initialize TTS (lightweight, should not fail)
+      try {
+        await this.ttsService.initialize();
+      } catch (ttsError) {
+        console.warn(
+          'TTS initialization failed, continuing without speech output:',
+          ttsError
+        );
+        // Continue without TTS - responses will be text-only
+      }
 
-      // Initialize audio recording
-      await this.audioRecordingService.initialize();
+      // Initialize audio recording (only if Whisper was successful)
+      if (whisperInitialized) {
+        try {
+          await this.audioRecordingService.initialize();
+        } catch (audioError) {
+          console.warn('Audio recording initialization failed:', audioError);
+          // Set error but don't throw - text mode will still work
+          this.store
+            .getState()
+            .setError(
+              'Voice input unavailable due to audio system issues. Text input will work normally.'
+            );
+        }
+      }
 
       this.store.getState().setInitialized(true);
       this.store.getState().setDownloadProgress(undefined);
+
+      // Final memory cleanup
+      if (typeof global !== 'undefined' && global.gc) {
+        global.gc();
+      }
     } catch (error) {
+      // Cleanup on failure
+      try {
+        await this.dispose();
+      } catch (disposeError) {
+        console.error(
+          'Error during cleanup after initialization failure:',
+          disposeError
+        );
+      }
+
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown initialization error';
       this.store.getState().setError(errorMessage);
@@ -177,13 +243,22 @@ export class VoiceAgentImpl implements IVoiceAgent {
 
       const callbackFunction = (audioData: Float32Array) => {
         try {
-          // Clear the real-time buffer and add the complete recording
-          this.audioBuffer.clear();
+          console.log('Audio callback received:', audioData.length, 'samples');
+
+          // Don't clear buffer here - only add the complete recording data
+          // The buffer was already cleared when startListening() was called
           this.audioBuffer.addBuffer(audioData);
 
-          // Process immediately
-          this.processAccumulatedAudio();
+          // Add a small delay to ensure all audio data is properly processed
+          setTimeout(() => {
+            console.log(
+              'Processing audio with buffer size:',
+              this.audioBuffer.getConcatenatedBuffer().length
+            );
+            this.processAccumulatedAudio();
+          }, 50); // 50ms delay to ensure audio is fully processed
         } catch (error) {
+          console.error('Error in audio callback:', error);
           this.store.getState().setError('Error processing audio callback');
         }
       };
@@ -277,100 +352,18 @@ export class VoiceAgentImpl implements IVoiceAgent {
 
   private async stopRecordingAndProcess(): Promise<void> {
     try {
-      // Stop the recording
+      // Stop the recording - AudioRecordingService will process the file and call our callback
       await this.audioRecordingService.stopRecording();
 
-      // Wait a brief moment for the file to be written
-      await new Promise((resolve) => setTimeout(resolve, 100));
-
-      // Process the recorded file directly
-      const recordingPath = this.audioRecordingService.getRecordingPath();
-
-      if (recordingPath) {
-        // Use the same processing logic from AudioRecordingService
-        const audioData = await this.processRecordedFileDirect(recordingPath);
-        if (audioData.length > 0) {
-          // Clear the buffer and add the processed audio
-          this.audioBuffer.clear();
-          this.audioBuffer.addBuffer(audioData);
-
-          // Process immediately
-          await this.processAccumulatedAudio();
-        }
-      }
+      // The callback will handle processing with a small delay
+      // No need to force immediate garbage collection here as it might interfere with processing
     } catch (error) {
       this.store.getState().setError(`Processing failed: ${error}`);
-    }
-  }
 
-  private async processRecordedFileDirect(
-    filePath: string
-  ): Promise<Float32Array> {
-    try {
-      const RNFS = require('react-native-fs');
-
-      // Check if file exists
-      const exists = await RNFS.exists(filePath);
-      if (!exists) {
-        return new Float32Array(0);
+      // Force cleanup on error only
+      if (typeof global !== 'undefined' && global.gc) {
+        global.gc();
       }
-
-      // Read the recorded audio file as base64
-      const audioBase64 = await RNFS.readFile(filePath, 'base64');
-
-      // Convert WAV/PCM data to Float32Array (same logic as AudioRecordingService)
-      const audioData = this.base64ToFloat32Array(audioBase64);
-
-      // Clean up the temporary file
-      if (await RNFS.exists(filePath)) {
-        await RNFS.unlink(filePath);
-      }
-
-      return audioData;
-    } catch (error) {
-      return new Float32Array(0);
-    }
-  }
-
-  private base64ToFloat32Array(base64: string): Float32Array {
-    try {
-      // Same conversion logic as AudioRecordingService
-      const binaryString = atob(base64);
-      const bytes = new Uint8Array(binaryString.length);
-
-      for (let i = 0; i < binaryString.length; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
-      }
-
-      // Skip WAV header (typically 44 bytes) if present
-      let dataStart = 0;
-      if (
-        bytes.length > 44 &&
-        bytes[0] === 0x52 &&
-        bytes[1] === 0x49 &&
-        bytes[2] === 0x46 &&
-        bytes[3] === 0x46
-      ) {
-        dataStart = 44;
-      }
-
-      // Convert bytes to 16-bit PCM samples
-      const sampleData = bytes.slice(dataStart);
-      const samples = new Int16Array(
-        sampleData.buffer,
-        sampleData.byteOffset,
-        sampleData.length / 2
-      );
-
-      // Convert to Float32Array normalized to [-1, 1]
-      const floatSamples = new Float32Array(samples.length);
-      for (let i = 0; i < samples.length; i++) {
-        floatSamples[i] = (samples[i] ?? 0) / 32768.0;
-      }
-
-      return floatSamples;
-    } catch (error) {
-      return new Float32Array(0);
     }
   }
 
@@ -396,39 +389,99 @@ export class VoiceAgentImpl implements IVoiceAgent {
   }
 
   private async processAccumulatedAudio(): Promise<void> {
+    let audioData: Float32Array | null = null;
+
     try {
-      const audioData = this.audioBuffer.getConcatenatedBuffer();
+      audioData = this.audioBuffer.getConcatenatedBuffer();
+
+      console.log('processAccumulatedAudio: buffer length =', audioData.length);
 
       if (audioData.length === 0) {
+        console.log('No audio data to process, returning');
+        return;
+      }
+
+      // Check if Whisper is available (might have failed to initialize)
+      if (!this.whisperService.isReady()) {
+        this.store
+          .getState()
+          .setError('Voice processing unavailable. Whisper service not ready.');
         return;
       }
 
       this.store.getState().setThinking(true);
 
-      // Transcribe audio
-      const transcript = await this.whisperService.transcribeAudio(audioData);
+      // Force garbage collection before processing
+      if (typeof global !== 'undefined' && global.gc) {
+        global.gc();
+      }
+
+      // Transcribe audio with memory-safe error handling
+      let transcript: string = '';
+      try {
+        transcript = await this.whisperService.transcribeAudio(audioData);
+      } catch (transcriptionError) {
+        console.error('Transcription failed:', transcriptionError);
+
+        // Force cleanup and try to recover
+        if (typeof global !== 'undefined' && global.gc) {
+          global.gc();
+        }
+
+        this.store
+          .getState()
+          .setError('Voice transcription failed. Try speaking again.');
+        return;
+      }
 
       if (transcript.trim()) {
         this.store.getState().setTranscript(transcript);
 
-        // Generate response
-        const response = await this.generateResponse(transcript);
+        // Generate response with memory monitoring
+        try {
+          const response = await this.generateResponse(transcript);
 
-        // Speak response
-        if (response.trim()) {
-          this.store.getState().setResponse(response);
-          await this.speak(response);
+          // Speak response if available
+          if (response.trim()) {
+            this.store.getState().setResponse(response);
+            await this.speak(response);
+          }
+        } catch (responseError) {
+          console.error('Response generation failed:', responseError);
+          this.store
+            .getState()
+            .setError('Failed to generate response. Please try again.');
         }
       }
 
       this.store.getState().setThinking(false);
+
+      // Clean up audio data reference
+      audioData = null;
+
+      // Force cleanup after processing
+      if (typeof global !== 'undefined' && global.gc) {
+        global.gc();
+      }
     } catch (error) {
       this.store.getState().setThinking(false);
+
+      // Clean up audio data reference on error
+      audioData = null;
+
+      // Force cleanup after error
+      if (typeof global !== 'undefined' && global.gc) {
+        global.gc();
+      }
+
       const errorMessage =
         error instanceof Error
           ? error.message
           : 'Failed to process accumulated audio';
       this.store.getState().setError(errorMessage);
+    } finally {
+      // Ensure audio data is cleaned up
+      audioData = null;
     }
   }
 
@@ -508,29 +561,91 @@ export class VoiceAgentImpl implements IVoiceAgent {
 
   async dispose(): Promise<void> {
     try {
-      // Stop any ongoing operations
+      // Stop any ongoing operations first
       this.stopListening();
       this.interruptSpeech();
 
-      // Clear timeouts
+      // Clear timeouts to prevent callbacks
       if (this.recordingTimeout) {
         clearTimeout(this.recordingTimeout);
+        this.recordingTimeout = undefined;
       }
 
-      // Dispose services
-      await Promise.all([
-        this.whisperService.dispose(),
-        this.llamaService.dispose(),
-        this.ttsService.dispose(),
-        this.audioRecordingService.dispose(),
-      ]);
+      // Clear audio buffer to free memory
+      this.audioBuffer.clear();
+
+      // Reset VAD state
+      if (this.vad) {
+        this.vad.reset();
+      }
+
+      // Dispose services with individual error handling to prevent double-free
+      const disposePromises = [];
+
+      // Dispose Whisper service
+      if (this.whisperService) {
+        disposePromises.push(
+          this.whisperService.dispose().catch((error) => {
+            console.error('Error disposing WhisperService:', error);
+          })
+        );
+      }
+
+      // Dispose LLM service
+      if (this.llamaService) {
+        disposePromises.push(
+          this.llamaService.dispose().catch((error) => {
+            console.error('Error disposing LlamaService:', error);
+          })
+        );
+      }
+
+      // Dispose TTS service
+      if (this.ttsService) {
+        disposePromises.push(
+          this.ttsService.dispose().catch((error) => {
+            console.error('Error disposing TTSService:', error);
+          })
+        );
+      }
+
+      // Dispose audio recording service
+      if (this.audioRecordingService) {
+        disposePromises.push(
+          this.audioRecordingService.dispose().catch((error) => {
+            console.error('Error disposing AudioRecordingService:', error);
+          })
+        );
+      }
+
+      // Wait for all disposals to complete
+      await Promise.allSettled(disposePromises);
 
       // Deactivate audio session
-      await this.audioSessionManager.deactivateSession();
+      try {
+        await this.audioSessionManager.deactivateSession();
+      } catch (sessionError) {
+        console.error('Error deactivating audio session:', sessionError);
+      }
 
       // Clear subscribers
       this.subscribers.clear();
-    } catch (error) {}
+
+      // Reset state
+      this.isRecording = false;
+
+      // Force final garbage collection
+      if (typeof global !== 'undefined' && global.gc) {
+        global.gc();
+      }
+    } catch (error) {
+      console.error('Error during VoiceAgent disposal:', error);
+
+      // Ensure final garbage collection even on error
+      if (typeof global !== 'undefined' && global.gc) {
+        global.gc();
+      }
+    }
   }
 }
 

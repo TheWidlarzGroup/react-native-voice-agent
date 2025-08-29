@@ -17,7 +17,7 @@ import { appStyles } from './styles/appStyles';
 import type { DemoType } from './types';
 
 export default function App() {
-  const [currentDemo, setCurrentDemo] = useState<DemoType>('basic');
+  const [currentDemo, setCurrentDemo] = useState<DemoType>('online');
   const agent = useVoiceAgent();
 
   const renderCurrentDemo = () => {
@@ -31,7 +31,7 @@ export default function App() {
       case 'online':
         return <OnlineExample agent={agent} />;
       default:
-        return <BasicExample agent={agent} />;
+        return <OnlineExample agent={agent} />;
     }
   };
 
@@ -45,6 +45,22 @@ export default function App() {
       </View>
 
       <View style={appStyles.tabContainer}>
+        <TouchableOpacity
+          style={[
+            appStyles.tab,
+            currentDemo === 'online' && appStyles.activeTab,
+          ]}
+          onPress={() => setCurrentDemo('online')}
+        >
+          <Text
+            style={[
+              appStyles.tabText,
+              currentDemo === 'online' && appStyles.activeTabText,
+            ]}
+          >
+            Online
+          </Text>
+        </TouchableOpacity>
         <TouchableOpacity
           style={[
             appStyles.tab,
@@ -75,38 +91,6 @@ export default function App() {
             ]}
           >
             Advanced
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            appStyles.tab,
-            currentDemo === 'custom' && appStyles.activeTab,
-          ]}
-          onPress={() => setCurrentDemo('custom')}
-        >
-          <Text
-            style={[
-              appStyles.tabText,
-              currentDemo === 'custom' && appStyles.activeTabText,
-            ]}
-          >
-            Custom
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            appStyles.tab,
-            currentDemo === 'online' && appStyles.activeTab,
-          ]}
-          onPress={() => setCurrentDemo('online')}
-        >
-          <Text
-            style={[
-              appStyles.tabText,
-              currentDemo === 'online' && appStyles.activeTabText,
-            ]}
-          >
-            Online
           </Text>
         </TouchableOpacity>
       </View>

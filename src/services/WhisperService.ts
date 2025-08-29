@@ -200,6 +200,52 @@ export class WhisperService {
     return this.isInitialized && this.whisperInstance !== null;
   }
 
+  async initializeWithFallback(
+    onDownloadProgress?: (progress: ModelDownloadProgress) => void
+  ): Promise<void> {
+    try {
+      if (this.isInitialized) {
+        return;
+      }
+
+      // Use the smallest possible model for fallback
+      const fallbackModelName = 'tiny.en';
+
+      // Download the fallback model
+      const modelPath = await this.modelDownloader.downloadWhisperModel(
+        fallbackModelName,
+        onDownloadProgress
+      );
+
+      // Validate model file
+      const isValid = await this.modelDownloader.validateModel(modelPath);
+      if (!isValid) {
+        throw new Error('Downloaded fallback Whisper model is corrupted');
+      }
+
+      // Initialize Whisper with CPU-only mode for maximum compatibility
+      this.whisperInstance = await initWhisper({
+        filePath: modelPath,
+        isBundleAsset: false,
+        useGpu: false,
+        useCoreMLIos: false,
+      });
+
+      // Update options to reflect fallback model
+      this.options.modelName = fallbackModelName;
+      this.options.enableGPUAcceleration = false;
+
+      this.isInitialized = true;
+    } catch (error) {
+      throw createServiceError(
+        'whisper',
+        'WHISPER_FALLBACK_INIT_FAILED',
+        'Failed to initialize Whisper with fallback settings',
+        error
+      );
+    }
+  }
+
   async dispose(): Promise<void> {
     try {
       if (this.whisperInstance) {
@@ -252,7 +298,6 @@ export class WhisperService {
       return models[models.length - 1]!; // large-v3 - most accurate
     }
 
-    // Default recommendation: good balance of speed and accuracy
     const defaultModel = models.find((m) => m.name === 'base.en') || models[1];
     if (!defaultModel) {
       throw new Error('No suitable model found');

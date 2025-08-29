@@ -33,24 +33,46 @@ export class LlamaService {
 
       this.systemPrompt = systemPrompt;
 
-      // Download model if not present
       const modelPath = await this.modelDownloader.downloadLlamaModel(
         this.options.modelName,
         onDownloadProgress
       );
 
-      // Skip model validation for performance - models are validated during download
+      const RNFS = require('react-native-fs');
 
-      // Initialize Llama
-      // Use small context size for mobile devices to avoid memory allocation issues
+      if (!(await RNFS.exists(modelPath))) {
+        throw new Error('Model file does not exist after download');
+      }
+
+      const stats = await RNFS.stat(modelPath);
+
+      if (stats.size < 50 * 1024 * 1024) {
+        await this.modelDownloader.clearCorruptedModel(this.options.modelName);
+
+        const newModelPath = await this.modelDownloader.downloadLlamaModel(
+          this.options.modelName,
+          onDownloadProgress
+        );
+
+        const newStats = await RNFS.stat(newModelPath);
+
+        if (newStats.size < 50 * 1024 * 1024) {
+          throw new Error(
+            'Model download failed - unable to get valid model file'
+          );
+        }
+      }
+
       this.llamaInstance = await initLlama({
         model: modelPath,
-        n_ctx: 512,
-        n_batch: 256,
-        n_threads: 2,
+        n_ctx: 128,
+        n_batch: 32,
+        n_threads: 1,
         use_mlock: false,
         use_mmap: true,
+        n_gpu_layers: 0,
       });
+
       this.isInitialized = true;
 
       // Set initial system prompt

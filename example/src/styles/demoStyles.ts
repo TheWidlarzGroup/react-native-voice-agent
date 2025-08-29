@@ -437,4 +437,7 @@ export const demoStyles = StyleSheet.create({
     fontWeight: '500',
     color: '#333',
   },
+  marginTop10: {
+    marginTop: 10,
+  },
 });
