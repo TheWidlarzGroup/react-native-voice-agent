@@ -18,6 +18,15 @@ export {
   AdvancedVoiceAgentButton,
 } from './components/VoiceAgentButton';
 
+// Integrations
+export { withVideoControl, matchIntent } from './integrations/videoController';
+export type {
+  VideoRef,
+  VideoCommand,
+  VideoIntent,
+  IntentMatch,
+} from './integrations/videoController';
+
 // Services (for advanced users)
 export { WhisperService } from './services/WhisperService';
 export { LlamaService } from './services/LlamaService';

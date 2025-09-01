@@ -41,12 +41,17 @@ project.xcworkspace
 local.properties
 android.iml
 
-# Cocoapods
+# Cocoapods - Prevent committing Pods directories
 #
 example/ios/Pods
+examples/*/ios/Pods/
+examples/*/Pods/
+examples/*/ios/Podfile.lock
+examples/*/Podfile.lock
 
 # Ruby
 example/vendor/
+examples/*/vendor/
 
 # node.js
 #
@@ -54,6 +59,15 @@ node_modules/
 npm-debug.log
 yarn-debug.log
 yarn-error.log
+
+# Examples build artifacts
+examples/*/build/
+examples/*/ios/build/
+examples/*/android/build/
+examples/*/android/app/build/
+examples/*/dist/
+examples/*/web-build/
+examples/*/.expo/
 
 # BUCK
 buck-out/
@@ -68,6 +82,11 @@ android/keystores/debug.keystore
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+# Examples Yarn cache
+examples/*/.yarn/cache/
+examples/*/.yarn/install-state.gz
+examples/*/.pnp.*
 
 # Expo
 .expo/

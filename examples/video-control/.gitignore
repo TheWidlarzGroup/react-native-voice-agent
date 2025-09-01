@@ -1,0 +1,76 @@
+# React Native / Expo
+# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
+
+# dependencies
+node_modules/
+
+# Yarn cache and lock files
+.yarn
+.pnp.*
+
+# Expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# Native
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# iOS - Prevent CocoaPods from being committed
+ios/Pods/
+ios/Podfile.lock
+Pods/
+Podfile.lock
+ios/build/
+*.xcworkspace/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+
+# Android
+android/build/
+android/app/build/
+android/.gradle/
+android/gradle/
+local.properties
+.gradle/
+build/
+.idea/
+*.iml
+*.hprof
+.cxx/
+
+# Metro
+.metro-health-check*
+
+# debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# macOS
+.DS_Store
+*.pem
+
+# local env files
+.env
+.env*.local
+
+# typescript
+*.tsbuildinfo
+
+# Bundle artifacts
+*.jsbundle
+
+# Flipper
+flipper-rn-addons.podspec
+
+# Logs
+logs/
+*.log
