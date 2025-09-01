@@ -71,7 +71,7 @@ export class AudioRecordingService {
   }
 
   async startRecording(
-    onAudioData: (audioData: Float32Array) => void
+    _onAudioData: (audioData: Float32Array) => void
   ): Promise<void> {
     if (!this.isInitialized) {
       throw createServiceError(
@@ -86,19 +86,13 @@ export class AudioRecordingService {
     }
 
     try {
-      this.onAudioDataCallback = onAudioData;
-
-      // Activate audio session
       await this.audioSessionManager.activateSession();
-
-      // Configure recording options
       const audioSet = {
         AudioEncoderAndroid: AudioEncoderAndroidType.AAC,
         AudioSampleRateAndroid: this.options.sampleRate,
         OutputFormatAndroid: OutputFormatAndroidType.MPEG_4,
         AudioSourceAndroid: AudioSourceAndroidType.MIC,
 
-        // iOS WAV/LPCM settings for better compatibility
         AVFormatIDKeyIOS: 'lpcm' as const,
         AVSampleRateKeyIOS: this.options.sampleRate,
         AVNumberOfChannelsKeyIOS: this.options.channels,
@@ -108,7 +102,6 @@ export class AudioRecordingService {
         AVLinearPCMIsNonInterleavedIOS: false,
       };
 
-      // Start recording
       await this.audioRecorderPlayer.startRecorder(
         this.recordingPath,
         audioSet
@@ -116,10 +109,7 @@ export class AudioRecordingService {
 
       this.isRecording = true;
 
-      // Set up recording progress listener
-      this.audioRecorderPlayer.addRecordBackListener(() => {
-        // Audio will be processed after recording is complete
-      });
+      this.audioRecorderPlayer.addRecordBackListener(() => {});
     } catch (error) {
       this.isRecording = false;
       throw createServiceError(
@@ -138,47 +128,83 @@ export class AudioRecordingService {
 
     try {
       // Stop recording
-      const result = await this.audioRecorderPlayer.stopRecorder();
+      await this.audioRecorderPlayer.stopRecorder();
       this.audioRecorderPlayer.removeRecordBackListener();
       this.isRecording = false;
 
       // Process the recorded audio file
-
-      if (this.onAudioDataCallback && result) {
+      // Always try to process if callback exists, regardless of result value
+      if (this.onAudioDataCallback) {
         const audioData = await this.processRecordedFile(this.recordingPath);
-        try {
-          this.onAudioDataCallback(audioData);
-        } catch (error) {
-          // Silently handle callback errors to prevent service disruption
+
+        if (audioData.length > 0) {
+          try {
+            this.onAudioDataCallback(audioData);
+          } catch (error) {
+            console.error('Error in audio callback:', error);
+          }
         }
+
+        // Clean up recording file AFTER processing
+        await this.cleanupRecordingFile();
+      } else {
+        await this.cleanupRecordingFile();
       }
 
       // Deactivate audio session
       await this.audioSessionManager.deactivateSession();
-    } catch (error) {}
+    } catch (error) {
+      // Ensure cleanup even if errors occur
+      await this.cleanupRecordingFile();
+    }
   }
 
   private async processRecordedFile(filePath: string): Promise<Float32Array> {
     try {
+      // Check if file exists
+      if (!(await RNFS.exists(filePath))) {
+        return new Float32Array(0);
+      }
+
+      // Get file stats
+      const stats = await RNFS.stat(filePath);
+
+      if (stats.size === 0) {
+        return new Float32Array(0);
+      }
+
       // Read the recorded audio file as base64
       const audioBase64 = await RNFS.readFile(filePath, 'base64');
 
       // Convert WAV/PCM data to Float32Array
       const audioData = this.base64ToFloat32Array(audioBase64);
 
-      // Clean up temporary file if no callback is set
-      if (!this.onAudioDataCallback && (await RNFS.exists(filePath))) {
-        await RNFS.unlink(filePath);
-      }
-
       return audioData;
     } catch (error) {
+      console.error('processRecordedFile: error processing file:', error);
       return new Float32Array(0);
+    }
+  }
+
+  private async cleanupRecordingFile(): Promise<void> {
+    try {
+      if (await RNFS.exists(this.recordingPath)) {
+        await RNFS.unlink(this.recordingPath);
+      }
+    } catch (error) {
+      // Silent cleanup failure
     }
   }
 
   private base64ToFloat32Array(base64: string): Float32Array {
     try {
+      // Limit processing to prevent OOM - max 5MB of audio data
+      if (base64.length > 6_666_666) {
+        // ~5MB when decoded
+        console.warn('Audio file too large, truncating to prevent OOM');
+        base64 = base64.substring(0, 6_666_666);
+      }
+
       // Decode base64 to binary
       const binaryString = atob(base64);
       const bytes = new Uint8Array(binaryString.length);
@@ -232,7 +258,25 @@ export class AudioRecordingService {
   }
 
   async dispose(): Promise<void> {
-    await this.stopRecording();
-    this.isInitialized = false;
+    try {
+      // Stop recording if active
+      await this.stopRecording();
+
+      // Remove any remaining listeners
+      this.audioRecorderPlayer.removeRecordBackListener();
+
+      // Clean up recording file
+      await this.cleanupRecordingFile();
+
+      // Clear callback reference
+      this.onAudioDataCallback = undefined;
+
+      this.isInitialized = false;
+    } catch (error) {
+      // Ensure state is reset even if cleanup fails
+      this.isInitialized = false;
+      this.isRecording = false;
+      this.onAudioDataCallback = undefined;
+    }
   }
 }

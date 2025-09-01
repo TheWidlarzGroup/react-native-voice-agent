@@ -2,12 +2,12 @@
 
 > 🎙️ **Offline AI voice agent for React Native** - Free to use
 
-React Native library that provides offline AI voice assistant experience using Whisper for speech-to-text, Llama for language modeling, and system TTS for speech synthesis.
+React Native library that provides AI voice assistant experience using Whisper for speech-to-text, offline Llama models or online providers (OpenAI, Anthropic, Google) for language modeling, and system TTS for speech synthesis.
 
 ## ✨ Key Features
 
-- 🔥 **100% Offline** - No API keys, no network dependencies, no privacy concerns
-- ⚡ **Zero Cost** - All processing happens on-device
+- 🔥 **Offline + Online** - Support both offline models and cloud providers (OpenAI, Anthropic, Google)
+- ⚡ **Flexible Costs** - Free offline processing or pay-per-use online models
 - 🚀 **Modern API** - Builder pattern configuration, React hooks integration
 - 📱 **Cross Platform** - iOS and Android support with platform optimizations
 - 🎨 **Customizable UI** - Optional components with full styling control
@@ -19,18 +19,35 @@ React Native library that provides offline AI voice assistant experience using W
 ```typescript
 import { VoiceAgent, useVoiceAgent } from 'react-native-audio-agent';
 
-// Create agent with builder pattern
-const agent = VoiceAgent
+// Create agent with offline model
+const offlineAgent = VoiceAgent
   .create()
   .withWhisper('tiny.en') // 39MB, fast transcription
-  .withLlama('llama-3.2-3b-instruct-q4_k_m.gguf') // 1.8GB, mid-quality responses
+  .withLLM({
+    provider: 'offline',
+    model: 'llama-3.2-3b-instruct-q4_k_m.gguf', // 1.8GB
+    maxTokens: 256,
+    temperature: 0.7,
+  })
   .withSystemPrompt('You are a helpful assistant.')
-  .withVoiceSettings({ rate: 0.5, pitch: 1.0 })
-  .enableGPUAcceleration(true)
+  .build();
+
+// Or with online provider
+const onlineAgent = VoiceAgent
+  .create()
+  .withWhisper('base.en')
+  .withLLM({
+    provider: 'openai', // 'openai' | 'anthropic' | 'google'
+    apiKey: 'your-api-key',
+    model: 'gpt-4',
+    maxTokens: 256,
+    temperature: 0.7,
+  })
+  .withSystemPrompt('You are a helpful assistant.')
   .build();
 
 function VoiceChat() {
-  const voice = useVoiceAgent(agent);
+  const voice = useVoiceAgent(offlineAgent); // or onlineAgent
 
   return (
     <TouchableOpacity

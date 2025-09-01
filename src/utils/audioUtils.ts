@@ -73,17 +73,33 @@ export class AudioBufferManager {
   private buffers: Float32Array[] = [];
   private maxBuffers = 10;
   private sampleRate = 16000;
+  private maxTotalSamples = 16000 * 30; // 30 seconds max to prevent OOM
 
   constructor(sampleRate = 16000, maxBuffers = 10) {
     this.sampleRate = sampleRate;
     this.maxBuffers = maxBuffers;
+    this.maxTotalSamples = sampleRate * 30; // 30 seconds max
   }
 
   addBuffer(buffer: Float32Array): void {
-    this.buffers.push(buffer);
+    if (buffer.length === 0) {
+      return;
+    }
 
-    if (this.buffers.length > this.maxBuffers) {
+    // Create a copy to prevent memory references
+    const bufferCopy = new Float32Array(buffer);
+    this.buffers.push(bufferCopy);
+
+    // Remove old buffers if exceeding max count
+    while (this.buffers.length > this.maxBuffers) {
       this.buffers.shift();
+    }
+
+    // Remove old buffers if exceeding max total samples (memory limit)
+    let totalSamples = this.getTotalSamples();
+    while (totalSamples > this.maxTotalSamples && this.buffers.length > 1) {
+      this.buffers.shift();
+      totalSamples = this.getTotalSamples();
     }
   }
 
@@ -92,23 +108,77 @@ export class AudioBufferManager {
   }
 
   getConcatenatedBuffer(): Float32Array {
-    const totalLength = this.buffers.reduce(
-      (sum, buffer) => sum + buffer.length,
-      0
-    );
+    if (this.buffers.length === 0) {
+      return new Float32Array(0);
+    }
+
+    const totalLength = this.getTotalSamples();
+
+    // Prevent creating massive arrays that could cause OOM
+    if (totalLength > this.maxTotalSamples) {
+      console.warn('Audio buffer too large, truncating to prevent OOM');
+      return this.getTruncatedBuffer();
+    }
+
     const result = new Float32Array(totalLength);
 
     let offset = 0;
     for (const buffer of this.buffers) {
-      result.set(buffer, offset);
-      offset += buffer.length;
+      if (offset + buffer.length <= result.length) {
+        result.set(buffer, offset);
+        offset += buffer.length;
+      } else {
+        // Truncate if we exceed the result array length
+        const remainingSpace = result.length - offset;
+        result.set(buffer.subarray(0, remainingSpace), offset);
+        break;
+      }
     }
 
     return result;
   }
 
+  private getTotalSamples(): number {
+    return this.buffers.reduce((sum, buffer) => sum + buffer.length, 0);
+  }
+
+  private getTruncatedBuffer(): Float32Array {
+    // Return the last N seconds of audio to stay within memory limits
+    const result = new Float32Array(this.maxTotalSamples);
+    let resultOffset = 0;
+    let remainingSpace = this.maxTotalSamples;
+
+    // Start from the end and work backwards
+    for (let i = this.buffers.length - 1; i >= 0 && remainingSpace > 0; i--) {
+      const buffer = this.buffers[i];
+      if (!buffer) continue;
+
+      const samplesFromThisBuffer = Math.min(remainingSpace, buffer.length);
+      const startIdx = buffer.length - samplesFromThisBuffer;
+
+      // Insert at the beginning of result array (since we're going backwards)
+      result.set(
+        buffer.subarray(startIdx),
+        this.maxTotalSamples - resultOffset - samplesFromThisBuffer
+      );
+
+      resultOffset += samplesFromThisBuffer;
+      remainingSpace -= samplesFromThisBuffer;
+    }
+
+    // Return only the portion that contains data
+    return result.subarray(this.maxTotalSamples - resultOffset);
+  }
+
   clear(): void {
+    // Clear references to help garbage collection
+    this.buffers.length = 0;
     this.buffers = [];
+
+    // Force garbage collection if available
+    if (typeof global !== 'undefined' && global.gc) {
+      global.gc();
+    }
   }
 
   getSampleRate(): number {
@@ -116,11 +186,24 @@ export class AudioBufferManager {
   }
 
   getDuration(): number {
-    const totalSamples = this.buffers.reduce(
-      (sum, buffer) => sum + buffer.length,
-      0
-    );
+    const totalSamples = this.getTotalSamples();
     return totalSamples / this.sampleRate;
+  }
+
+  getMemoryUsage(): {
+    bufferCount: number;
+    totalSamples: number;
+    memoryMB: number;
+  } {
+    const totalSamples = this.getTotalSamples();
+    const memoryBytes = totalSamples * 4; // 4 bytes per Float32
+    const memoryMB = memoryBytes / (1024 * 1024);
+
+    return {
+      bufferCount: this.buffers.length,
+      totalSamples,
+      memoryMB: Math.round(memoryMB * 100) / 100,
+    };
   }
 }
 

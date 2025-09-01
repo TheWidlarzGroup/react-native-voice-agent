@@ -1,4 +1,4 @@
-export type DemoType = 'basic' | 'advanced' | 'custom';
+export type DemoType = 'basic' | 'advanced' | 'custom' | 'online';
 
 export interface ConversationEntry {
   type: 'user' | 'assistant' | 'thinking';

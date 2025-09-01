@@ -12,6 +12,7 @@ export class ModelDownloader {
     string,
     (progress: ModelDownloadProgress) => void
   > = new Map();
+  private loggedProgress: Set<string> = new Set();
 
   static getInstance(): ModelDownloader {
     if (!ModelDownloader.instance) {
@@ -34,12 +35,16 @@ export class ModelDownloader {
   }
 
   private getLlamaModelUrl(modelName: string): string {
-    // Use a smaller model that actually exists for testing
-    if (modelName === 'llama-3.2-3b-instruct-q4_k_m.gguf') {
-      // Use a smaller phi-3 model for testing
-      return 'https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf/resolve/main/Phi-3-mini-4k-instruct-q4.gguf';
-    }
-    return `https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf/resolve/main/${modelName}`;
+    const modelUrls: Record<string, string> = {
+      'llama-3.2-3b-instruct-q4_k_m.gguf':
+        'https://huggingface.co/bartowski/Llama-3.2-3B-Instruct-GGUF/resolve/main/Llama-3.2-3B-Instruct-Q4_K_M.gguf',
+      'llama-3.2-1b-instruct-q4_k_m.gguf':
+        'https://huggingface.co/bartowski/Llama-3.2-1B-Instruct-GGUF/resolve/main/Llama-3.2-1B-Instruct-Q4_K_M.gguf',
+      'default':
+        'https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf/resolve/main/Phi-3-mini-4k-instruct-q4.gguf',
+    };
+
+    return modelUrls[modelName] || modelUrls.default!;
   }
 
   private async ensureModelDirectory(): Promise<void> {
@@ -66,6 +71,17 @@ export class ModelDownloader {
 
   getModelPath(modelName: string): string {
     return `${this.getModelDirectory()}/${modelName}`;
+  }
+
+  async clearCorruptedModel(modelName: string): Promise<void> {
+    const modelPath = this.getModelPath(modelName);
+    try {
+      if (await RNFS.exists(modelPath)) {
+        await RNFS.unlink(modelPath);
+      }
+    } catch (error) {
+      console.error('Error clearing corrupted model:', error);
+    }
   }
 
   async downloadWhisperModel(
@@ -184,8 +200,25 @@ export class ModelDownloader {
     await this.ensureModelDirectory();
     const url = this.getLlamaModelUrl(modelName);
 
-    // Estimate model size (for llama-3.2-3b-instruct-q4_k_m.gguf)
-    const expectedSize = 1.8 * 1024 * 1024 * 1024; // 1.8GB
+    // Verify directory exists
+    const modelDir = this.getModelDirectory();
+    try {
+      await RNFS.stat(modelDir);
+    } catch (dirError) {
+      const message =
+        dirError instanceof Error ? dirError.message : String(dirError);
+      throw new Error(`Cannot access model directory: ${message}`);
+    }
+
+    // Estimate model size based on model name
+    let expectedSize: number;
+    if (modelName.includes('1b')) {
+      expectedSize = 800 * 1024 * 1024; // ~800MB for 1B model
+    } else if (modelName.includes('3b')) {
+      expectedSize = 1.8 * 1024 * 1024 * 1024; // 1.8GB for 3B model
+    } else {
+      expectedSize = 1.0 * 1024 * 1024 * 1024; // 1GB default
+    }
 
     if (!(await this.checkAvailableSpace(expectedSize))) {
       throw new Error(
@@ -193,16 +226,51 @@ export class ModelDownloader {
       );
     }
 
+    // Quick connectivity test first
+    try {
+      const testResponse = await fetch(url, { method: 'HEAD' });
+      if (!testResponse.ok) {
+        throw new Error(`Server returned ${testResponse.status}`);
+      }
+    } catch (testError) {
+      const message =
+        testError instanceof Error ? testError.message : String(testError);
+      throw new Error(`Cannot reach download server: ${message}`);
+    }
+
     return new Promise((resolve, reject) => {
       const downloadId = `llama-${modelName}`;
 
       if (onProgress) {
         this.downloadCallbacks.set(downloadId, onProgress);
+
+        // Report initial progress to show download is starting
+        onProgress({
+          modelName: `llama-${modelName}`,
+          downloaded: 0,
+          total: expectedSize,
+          percentage: 0,
+          isComplete: false,
+        });
       }
+
+      // Add timeout to prevent infinite hanging
+      const downloadTimeout = setTimeout(
+        () => {
+          reject(
+            new Error(
+              'Download timeout - the model download is taking too long.'
+            )
+          );
+        },
+        10 * 60 * 1000
+      ); // 10 minutes
 
       const download = RNFS.downloadFile({
         fromUrl: url,
         toFile: modelPath,
+        connectionTimeout: 30000,
+        readTimeout: 300000,
         progress: (res: DownloadProgressInfo) => {
           const progress: ModelDownloadProgress = {
             modelName: `llama-${modelName}`,
@@ -215,15 +283,27 @@ export class ModelDownloader {
             isComplete: false,
           };
 
+          // Always call the callback to ensure UI updates
           const callback = this.downloadCallbacks.get(downloadId);
           if (callback) {
             callback(progress);
+          }
+
+          // Also log progress for debugging (every 10%)
+          const roundedPercentage = Math.floor(progress.percentage / 10) * 10;
+          const key = `${downloadId}-${roundedPercentage}`;
+          if (!this.loggedProgress.has(key) && roundedPercentage > 0) {
+            console.log(
+              `Download progress: ${Math.round(progress.percentage)}% (${Math.round(res.bytesWritten / (1024 * 1024))}MB / ${Math.round(res.contentLength / (1024 * 1024))}MB)`
+            );
+            this.loggedProgress.add(key);
           }
         },
       });
 
       download.promise
         .then(() => {
+          clearTimeout(downloadTimeout);
           const finalProgress: ModelDownloadProgress = {
             modelName: `llama-${modelName}`,
             downloaded: expectedSize,
@@ -241,6 +321,7 @@ export class ModelDownloader {
           resolve(modelPath);
         })
         .catch((error: Error) => {
+          clearTimeout(downloadTimeout);
           this.downloadCallbacks.delete(downloadId);
           reject(new Error(`Failed to download Llama model: ${error.message}`));
         });

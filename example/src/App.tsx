@@ -6,13 +6,18 @@ import {
   SafeAreaView,
   TouchableOpacity,
 } from 'react-native';
-import { BasicExample, AdvancedExample, CustomExample } from './components';
+import {
+  BasicExample,
+  AdvancedExample,
+  CustomExample,
+  OnlineExample,
+} from './components';
 import { useVoiceAgent } from './hooks/useVoiceAgent';
 import { appStyles } from './styles/appStyles';
 import type { DemoType } from './types';
 
 export default function App() {
-  const [currentDemo, setCurrentDemo] = useState<DemoType>('basic');
+  const [currentDemo, setCurrentDemo] = useState<DemoType>('online');
   const agent = useVoiceAgent();
 
   const renderCurrentDemo = () => {
@@ -23,8 +28,10 @@ export default function App() {
         return <AdvancedExample agent={agent} />;
       case 'custom':
         return <CustomExample agent={agent} />;
+      case 'online':
+        return <OnlineExample agent={agent} />;
       default:
-        return <BasicExample agent={agent} />;
+        return <OnlineExample agent={agent} />;
     }
   };
 
@@ -32,10 +39,28 @@ export default function App() {
     <SafeAreaView style={appStyles.container}>
       <View style={appStyles.header}>
         <Text style={appStyles.title}>React Native Voice Agent</Text>
-        <Text style={appStyles.subtitle}>Offline AI Voice Assistant Demo</Text>
+        <Text style={appStyles.subtitle}>
+          Offline & Online AI Voice Assistant Demo
+        </Text>
       </View>
 
       <View style={appStyles.tabContainer}>
+        <TouchableOpacity
+          style={[
+            appStyles.tab,
+            currentDemo === 'online' && appStyles.activeTab,
+          ]}
+          onPress={() => setCurrentDemo('online')}
+        >
+          <Text
+            style={[
+              appStyles.tabText,
+              currentDemo === 'online' && appStyles.activeTabText,
+            ]}
+          >
+            Online
+          </Text>
+        </TouchableOpacity>
         <TouchableOpacity
           style={[
             appStyles.tab,
@@ -66,22 +91,6 @@ export default function App() {
             ]}
           >
             Advanced
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            appStyles.tab,
-            currentDemo === 'custom' && appStyles.activeTab,
-          ]}
-          onPress={() => setCurrentDemo('custom')}
-        >
-          <Text
-            style={[
-              appStyles.tabText,
-              currentDemo === 'custom' && appStyles.activeTabText,
-            ]}
-          >
-            Custom
           </Text>
         </TouchableOpacity>
       </View>

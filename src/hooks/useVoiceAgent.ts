@@ -33,6 +33,12 @@ export const useVoiceAgent = (agent: VoiceAgent): VoiceAgentHookReturn => {
 
   // Subscribe to agent state changes
   useEffect(() => {
+    // Clean up previous subscription
+    if (unsubscribeRef.current) {
+      unsubscribeRef.current();
+      unsubscribeRef.current = null;
+    }
+
     const unsubscribe = agentRef.current.subscribe(
       (newState: VoiceAgentState) => {
         setState(newState);
@@ -42,7 +48,9 @@ export const useVoiceAgent = (agent: VoiceAgent): VoiceAgentHookReturn => {
     unsubscribeRef.current = unsubscribe;
 
     // Initialize agent if not already initialized
-    if (!agentRef.current.getState().isInitialized) {
+    const currentState = agentRef.current.getState();
+
+    if (!currentState.isInitialized) {
       agentRef.current.initialize().catch((error) => {
         setState((prev) => ({
           ...prev,
@@ -52,7 +60,7 @@ export const useVoiceAgent = (agent: VoiceAgent): VoiceAgentHookReturn => {
       });
     } else {
       // Get current state immediately if already initialized
-      setState(agentRef.current.getState());
+      setState(currentState);
     }
 
     return () => {
@@ -61,7 +69,7 @@ export const useVoiceAgent = (agent: VoiceAgent): VoiceAgentHookReturn => {
         unsubscribeRef.current = null;
       }
     };
-  }, []);
+  }, [agent]); // Re-run when agent changes
 
   // Start listening with permission checks
   const startListening = useCallback(async (): Promise<void> => {
@@ -314,7 +322,18 @@ export const useAdvancedVoiceAgent = (agent: VoiceAgent) => {
 
     if (!basicHook.isInitialized) {
       if (isDownloading && progress) {
-        statusText = `Downloading ${progress.modelName}: ${Math.round(progress.percentage)}%`;
+        const modelName = progress.modelName
+          .replace('llama-', '')
+          .replace('.gguf', '');
+        const downloadedMB = Math.round(progress.downloaded / (1024 * 1024));
+        const totalMB = Math.round(progress.total / (1024 * 1024));
+        const percentage = Math.round(progress.percentage);
+
+        if (progress.percentage === 0) {
+          statusText = `Preparing to download ${modelName}...`;
+        } else {
+          statusText = `Downloading ${modelName}: ${percentage}% (${downloadedMB}/${totalMB}MB)`;
+        }
       } else {
         statusText = 'Initializing...';
       }

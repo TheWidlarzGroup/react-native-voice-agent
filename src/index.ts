@@ -21,6 +21,7 @@ export {
 // Services (for advanced users)
 export { WhisperService } from './services/WhisperService';
 export { LlamaService } from './services/LlamaService';
+export { OnlineLLMService } from './services/OnlineLLMService';
 export { TTSService } from './services/TTSService';
 export type { Voice } from './services/TTSService';
 
@@ -33,6 +34,14 @@ export {
   audioUtils,
 } from './utils/audioUtils';
 
+// Model constants
+export {
+  OFFLINE_MODELS,
+  OPENAI_MODELS,
+  ANTHROPIC_MODELS,
+  GOOGLE_MODELS,
+} from './types';
+
 // Types
 export type {
   // Core types
@@ -43,9 +52,20 @@ export type {
 
   // Model types
   WhisperModel,
-  LlamaModel,
+  OfflineLlamaModel,
   WhisperOptions,
-  LlamaOptions,
+  OfflineLlamaOptions,
+
+  // LLM Configuration types
+  LLMConfig,
+  OfflineLLMConfig,
+  OpenAIConfig,
+  AnthropicConfig,
+  GoogleConfig,
+  OnlineLLMProvider,
+  OpenAIModel,
+  AnthropicModel,
+  GoogleModel,
 
   // Settings and configuration
   VoiceSettings,

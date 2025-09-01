@@ -51,6 +51,7 @@ export const VoiceAgentButton: React.FC<VoiceAgentButtonProps> = ({
         color: '#FFA500',
         disabled: true,
         showActivity: true,
+        downloadProgress: downloadInfo.progress,
       };
     }
 
@@ -191,6 +192,20 @@ export const VoiceAgentButton: React.FC<VoiceAgentButtonProps> = ({
             {buttonState.label}
           </Text>
         </View>
+
+        {/* Download Progress Bar */}
+        {buttonState.downloadProgress && (
+          <View style={styles.buttonProgressContainer}>
+            <View
+              style={[
+                styles.buttonProgressBar,
+                {
+                  width: `${Math.max(buttonState.downloadProgress.percentage, 0)}%`,
+                },
+              ]}
+            />
+          </View>
+        )}
       </View>
     </Pressable>
   );
@@ -430,6 +445,23 @@ const styles = StyleSheet.create({
   },
   activityIndicator: {
     marginRight: 8,
+  },
+  buttonProgressContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    borderBottomLeftRadius: 25,
+    borderBottomRightRadius: 25,
+    overflow: 'hidden',
+  },
+  buttonProgressBar: {
+    height: '100%',
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    borderBottomLeftRadius: 25,
+    borderBottomRightRadius: 25,
   },
 
   // Compact button styles
