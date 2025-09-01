@@ -322,7 +322,18 @@ export const useAdvancedVoiceAgent = (agent: VoiceAgent) => {
 
     if (!basicHook.isInitialized) {
       if (isDownloading && progress) {
-        statusText = `Downloading ${progress.modelName}: ${Math.round(progress.percentage)}%`;
+        const modelName = progress.modelName
+          .replace('llama-', '')
+          .replace('.gguf', '');
+        const downloadedMB = Math.round(progress.downloaded / (1024 * 1024));
+        const totalMB = Math.round(progress.total / (1024 * 1024));
+        const percentage = Math.round(progress.percentage);
+
+        if (progress.percentage === 0) {
+          statusText = `Preparing to download ${modelName}...`;
+        } else {
+          statusText = `Downloading ${modelName}: ${percentage}% (${downloadedMB}/${totalMB}MB)`;
+        }
       } else {
         statusText = 'Initializing...';
       }

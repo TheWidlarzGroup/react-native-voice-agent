@@ -161,38 +161,23 @@ export class AudioRecordingService {
 
   private async processRecordedFile(filePath: string): Promise<Float32Array> {
     try {
-      console.log('processRecordedFile: checking file at', filePath);
-
       // Check if file exists
       if (!(await RNFS.exists(filePath))) {
-        console.log('processRecordedFile: file does not exist');
         return new Float32Array(0);
       }
 
       // Get file stats
       const stats = await RNFS.stat(filePath);
-      console.log('processRecordedFile: file size =', stats.size, 'bytes');
 
       if (stats.size === 0) {
-        console.log('processRecordedFile: file is empty');
         return new Float32Array(0);
       }
 
       // Read the recorded audio file as base64
       const audioBase64 = await RNFS.readFile(filePath, 'base64');
-      console.log(
-        'processRecordedFile: read',
-        audioBase64.length,
-        'base64 characters'
-      );
 
       // Convert WAV/PCM data to Float32Array
       const audioData = this.base64ToFloat32Array(audioBase64);
-      console.log(
-        'processRecordedFile: converted to',
-        audioData.length,
-        'samples'
-      );
 
       return audioData;
     } catch (error) {

@@ -7,7 +7,7 @@ export const useVoiceAgent = () => {
       .withWhisper('tiny.en')
       .withLLM({
         provider: 'offline',
-        model: 'llama-3.2-3b-instruct-q4_k_m.gguf',
+        model: 'llama-3.2-1b-instruct-q4_k_m.gguf',
         maxTokens: 256,
         temperature: 0.7,
         topP: 0.9,

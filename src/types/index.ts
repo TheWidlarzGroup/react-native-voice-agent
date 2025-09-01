@@ -26,31 +26,36 @@ export type OpenAIModel =
   | 'gpt-5'
   | 'gpt-5-mini'
   | 'gpt-5-nano'
-  | 'gpt-4'
-  | 'gpt-4-turbo'
-  | 'gpt-4-turbo-preview'
+  | 'gpt-4.1'
+  | 'gpt-4.1-mini'
+  | 'gpt-4.1-nano'
   | 'gpt-4o'
   | 'gpt-4o-mini'
-  | 'gpt-3.5-turbo'
-  | 'gpt-3.5-turbo-16k';
+  | 'gpt-realtime'
+  | 'o3-mini';
 
-// Anthropic Models (2025 Latest)
+// Anthropic Models
 export type AnthropicModel =
-  | 'claude-opus-4-1-20250805'
-  | 'claude-sonnet-4-20250514'
+  | 'claude-opus-4.1-20250805'
+  | 'claude-sonnet-4-20250522'
+  | 'claude-opus-4-20250522'
+  | 'claude-3.7-sonnet-20250224'
+  | 'claude-3.5-sonnet'
+  | 'claude-3.5-haiku'
+  | 'claude-3.5-opus'
   | 'claude-3-opus-20240229'
-  | 'claude-3-sonnet-20240229'
-  | 'claude-3-haiku-20240307'
-  | 'claude-2.1'
-  | 'claude-2.0';
+  | 'claude-3-sonnet-20240229';
 
-// Google Models (2025 Latest)
+// Google Models
 export type GoogleModel =
   | 'gemini-2.5-pro'
   | 'gemini-2.5-flash'
-  | 'gemini-pro'
-  | 'gemini-pro-vision'
-  | 'gemini-1.0-pro';
+  | 'gemini-2.5-flash-lite'
+  | 'gemini-2.0-flash'
+  | 'gemini-2.0-flash-thinking'
+  | 'gemini-2.0-flash-lite'
+  | 'gemini-1.5-pro'
+  | 'gemini-1.5-flash';
 
 export interface OfflineLLMConfig {
   provider: 'offline';
@@ -128,8 +133,38 @@ export const OPENAI_MODELS: Array<{
   context: number;
 }> = [
   {
+    model: 'gpt-5',
+    description: 'Most advanced reasoning model with 94.6% AIME performance',
+    context: 272000,
+  },
+  {
+    model: 'gpt-5-mini',
+    description: 'Fast and efficient GPT-5 variant',
+    context: 272000,
+  },
+  {
+    model: 'gpt-5-nano',
+    description: 'Lightweight GPT-5 variant',
+    context: 272000,
+  },
+  {
+    model: 'gpt-4.1',
+    description: 'Enhanced GPT-4 with 1M context window',
+    context: 1000000,
+  },
+  {
+    model: 'gpt-4.1-mini',
+    description: 'Efficient GPT-4.1 variant',
+    context: 1000000,
+  },
+  {
+    model: 'gpt-4.1-nano',
+    description: 'Compact GPT-4.1 variant',
+    context: 1000000,
+  },
+  {
     model: 'gpt-4o',
-    description: 'Latest multimodal flagship model',
+    description: 'Multimodal flagship model',
     context: 128000,
   },
   {
@@ -137,26 +172,15 @@ export const OPENAI_MODELS: Array<{
     description: 'Fast, cost-effective smart model',
     context: 128000,
   },
-  { model: 'gpt-4', description: 'Most capable model', context: 8192 },
   {
-    model: 'gpt-4-turbo',
-    description: 'Faster than GPT-4, good balance',
+    model: 'gpt-realtime',
+    description: 'Optimized for real-time voice interactions',
     context: 128000,
   },
   {
-    model: 'gpt-4-turbo-preview',
-    description: 'Latest GPT-4 Turbo preview',
-    context: 128000,
-  },
-  {
-    model: 'gpt-3.5-turbo',
-    description: 'Fast and cost-effective',
-    context: 16385,
-  },
-  {
-    model: 'gpt-3.5-turbo-16k',
-    description: 'Extended context version',
-    context: 16385,
+    model: 'o3-mini',
+    description: 'Latest reasoning model with enhanced abilities',
+    context: 200000,
   },
 ];
 
@@ -166,14 +190,39 @@ export const ANTHROPIC_MODELS: Array<{
   context: number;
 }> = [
   {
-    model: 'claude-opus-4-1-20250805',
+    model: 'claude-opus-4.1-20250805',
     description: 'Most capable and intelligent model (2025)',
     context: 1000000,
   },
   {
-    model: 'claude-sonnet-4-20250514',
-    description: 'High-performance with exceptional reasoning',
+    model: 'claude-sonnet-4-20250522',
+    description: 'High-performance Claude 4 with exceptional reasoning',
     context: 1000000,
+  },
+  {
+    model: 'claude-opus-4-20250522',
+    description: 'Most capable Claude 4 model',
+    context: 1000000,
+  },
+  {
+    model: 'claude-3.7-sonnet-20250224',
+    description: 'Hybrid reasoning model with step-by-step thinking',
+    context: 1000000,
+  },
+  {
+    model: 'claude-3.5-sonnet',
+    description: 'Industry-leading intelligence with computer use',
+    context: 200000,
+  },
+  {
+    model: 'claude-3.5-haiku',
+    description: 'Fastest model surpassing Claude 3 Opus',
+    context: 200000,
+  },
+  {
+    model: 'claude-3.5-opus',
+    description: 'Upcoming most capable Claude 3.5 model',
+    context: 200000,
   },
   {
     model: 'claude-3-opus-20240229',
@@ -185,17 +234,6 @@ export const ANTHROPIC_MODELS: Array<{
     description: 'Balanced performance and capability',
     context: 200000,
   },
-  {
-    model: 'claude-3-haiku-20240307',
-    description: 'Fastest and most cost-effective',
-    context: 200000,
-  },
-  {
-    model: 'claude-2.1',
-    description: 'Previous generation, reliable',
-    context: 200000,
-  },
-  { model: 'claude-2.0', description: 'Legacy model', context: 100000 },
 ];
 
 export const GOOGLE_MODELS: Array<{
@@ -205,28 +243,43 @@ export const GOOGLE_MODELS: Array<{
 }> = [
   {
     model: 'gemini-2.5-pro',
-    description: 'Most powerful model with adaptive thinking (2025)',
+    description: 'Most intelligent AI model with state-of-the-art thinking',
     context: 2000000,
   },
   {
     model: 'gemini-2.5-flash',
-    description: 'Optimized for price-performance with adaptive thinking',
+    description: 'Best price-performance with thinking capabilities',
     context: 1000000,
   },
   {
-    model: 'gemini-pro',
-    description: 'Most capable Gemini 1.5 model',
-    context: 32768,
+    model: 'gemini-2.5-flash-lite',
+    description: 'Lowest latency and cost in 2.5 family',
+    context: 1000000,
   },
   {
-    model: 'gemini-pro-vision',
-    description: 'Supports images (text-only for voice)',
-    context: 32768,
+    model: 'gemini-2.0-flash',
+    description: 'Next-gen features with native tool use',
+    context: 1000000,
   },
   {
-    model: 'gemini-1.0-pro',
-    description: 'Stable Gemini 1.0 version',
-    context: 32768,
+    model: 'gemini-2.0-flash-thinking',
+    description: 'First thinking model with Flash speed',
+    context: 1000000,
+  },
+  {
+    model: 'gemini-2.0-flash-lite',
+    description: 'Lightweight 2.0 Flash variant',
+    context: 1000000,
+  },
+  {
+    model: 'gemini-1.5-pro',
+    description: 'Advanced 1.5 generation model',
+    context: 2000000,
+  },
+  {
+    model: 'gemini-1.5-flash',
+    description: 'Fast and efficient 1.5 model',
+    context: 1000000,
   },
 ];
 

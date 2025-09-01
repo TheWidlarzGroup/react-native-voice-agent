@@ -187,12 +187,9 @@ export class VoiceAgentImpl implements IVoiceAgent {
           await this.audioRecordingService.initialize();
         } catch (audioError) {
           console.warn('Audio recording initialization failed:', audioError);
-          // Set error but don't throw - text mode will still work
           this.store
             .getState()
-            .setError(
-              'Voice input unavailable due to audio system issues. Text input will work normally.'
-            );
+            .setError('Voice input unavailable due to audio system issues.');
         }
       }
 
@@ -243,18 +240,12 @@ export class VoiceAgentImpl implements IVoiceAgent {
 
       const callbackFunction = (audioData: Float32Array) => {
         try {
-          console.log('Audio callback received:', audioData.length, 'samples');
-
           // Don't clear buffer here - only add the complete recording data
           // The buffer was already cleared when startListening() was called
           this.audioBuffer.addBuffer(audioData);
 
           // Add a small delay to ensure all audio data is properly processed
           setTimeout(() => {
-            console.log(
-              'Processing audio with buffer size:',
-              this.audioBuffer.getConcatenatedBuffer().length
-            );
             this.processAccumulatedAudio();
           }, 50); // 50ms delay to ensure audio is fully processed
         } catch (error) {
@@ -394,10 +385,7 @@ export class VoiceAgentImpl implements IVoiceAgent {
     try {
       audioData = this.audioBuffer.getConcatenatedBuffer();
 
-      console.log('processAccumulatedAudio: buffer length =', audioData.length);
-
       if (audioData.length === 0) {
-        console.log('No audio data to process, returning');
         return;
       }
 
@@ -417,7 +405,7 @@ export class VoiceAgentImpl implements IVoiceAgent {
       }
 
       // Transcribe audio with memory-safe error handling
-      let transcript: string = '';
+      let transcript = '';
       try {
         transcript = await this.whisperService.transcribeAudio(audioData);
       } catch (transcriptionError) {
