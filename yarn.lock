@@ -11075,6 +11075,57 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-native-audio-agent@*, react-native-audio-agent@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "react-native-audio-agent@workspace:."
+  dependencies:
+    "@commitlint/config-conventional": ^19.6.0
+    "@eslint/compat": ^1.2.7
+    "@eslint/eslintrc": ^3.3.0
+    "@eslint/js": ^9.22.0
+    "@evilmartians/lefthook": ^1.5.0
+    "@react-native-community/cli": 15.0.0-alpha.2
+    "@react-native/babel-preset": 0.79.2
+    "@react-native/eslint-config": ^0.78.0
+    "@release-it/conventional-changelog": ^9.0.2
+    "@types/jest": ^29.5.5
+    "@types/react": ^19.0.0
+    commitlint: ^19.6.1
+    del-cli: ^5.1.0
+    eslint: ^9.22.0
+    eslint-config-prettier: ^10.1.1
+    eslint-plugin-prettier: ^5.2.3
+    jest: ^29.7.0
+    license-kit: ^0.3.1
+    llama.rn: ^0.6.10
+    prettier: ^3.0.3
+    react: 19.0.0
+    react-native: 0.79.2
+    react-native-audio-recorder-player: ^4.3.0
+    react-native-builder-bob: ^0.40.13
+    react-native-fs: ^2.20.0
+    react-native-legal: ^1.5.2
+    react-native-nitro-modules: ^0.28.1
+    react-native-permissions: ^5.4.2
+    react-native-sound: ^0.11.2
+    react-native-tts: ^4.1.1
+    release-it: ^17.10.0
+    turbo: ^1.10.7
+    typescript: ^5.8.3
+    whisper.rn: ^0.4.3
+    zustand: ^5.0.8
+  peerDependencies:
+    llama.rn: ^0.6.10
+    react: "*"
+    react-native: "*"
+    react-native-audio-recorder-player: ^4.3.0
+    react-native-fs: ^2.20.0
+    react-native-permissions: ^4.1.5
+    react-native-tts: ^4.1.1
+    whisper.rn: ^0.4.3
+  languageName: unknown
+  linkType: soft
+
 "react-native-audio-recorder-player@npm:^4.3.0":
   version: 4.3.0
   resolution: "react-native-audio-recorder-player@npm:4.3.0"
@@ -11216,9 +11267,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-voice-agent-example@workspace:example":
+"react-native-voice-audio-example@workspace:example":
   version: 0.0.0-use.local
-  resolution: "react-native-voice-agent-example@workspace:example"
+  resolution: "react-native-voice-audio-example@workspace:example"
   dependencies:
     "@babel/core": ^7.25.2
     "@babel/preset-env": ^7.25.3
@@ -11233,63 +11284,12 @@ __metadata:
     llama.rn: ^0.6.10
     react: 19.0.0
     react-native: 0.79.2
+    react-native-audio-agent: "*"
     react-native-audio-recorder-player: ^4.3.0
     react-native-builder-bob: ^0.40.13
     react-native-fs: ^2.20.0
     react-native-monorepo-config: ^0.1.9
     react-native-nitro-modules: ^0.28.1
-    react-native-permissions: ^4.1.5
-    react-native-tts: ^4.1.1
-    react-native-voice-agent: "*"
-    whisper.rn: ^0.4.3
-  languageName: unknown
-  linkType: soft
-
-"react-native-voice-agent@*, react-native-voice-agent@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "react-native-voice-agent@workspace:."
-  dependencies:
-    "@commitlint/config-conventional": ^19.6.0
-    "@eslint/compat": ^1.2.7
-    "@eslint/eslintrc": ^3.3.0
-    "@eslint/js": ^9.22.0
-    "@evilmartians/lefthook": ^1.5.0
-    "@react-native-community/cli": 15.0.0-alpha.2
-    "@react-native/babel-preset": 0.79.2
-    "@react-native/eslint-config": ^0.78.0
-    "@release-it/conventional-changelog": ^9.0.2
-    "@types/jest": ^29.5.5
-    "@types/react": ^19.0.0
-    commitlint: ^19.6.1
-    del-cli: ^5.1.0
-    eslint: ^9.22.0
-    eslint-config-prettier: ^10.1.1
-    eslint-plugin-prettier: ^5.2.3
-    jest: ^29.7.0
-    license-kit: ^0.3.1
-    llama.rn: ^0.6.10
-    prettier: ^3.0.3
-    react: 19.0.0
-    react-native: 0.79.2
-    react-native-audio-recorder-player: ^4.3.0
-    react-native-builder-bob: ^0.40.13
-    react-native-fs: ^2.20.0
-    react-native-legal: ^1.5.2
-    react-native-nitro-modules: ^0.28.1
-    react-native-permissions: ^5.4.2
-    react-native-sound: ^0.11.2
-    react-native-tts: ^4.1.1
-    release-it: ^17.10.0
-    turbo: ^1.10.7
-    typescript: ^5.8.3
-    whisper.rn: ^0.4.3
-    zustand: ^5.0.8
-  peerDependencies:
-    llama.rn: ^0.6.10
-    react: "*"
-    react-native: "*"
-    react-native-audio-recorder-player: ^4.3.0
-    react-native-fs: ^2.20.0
     react-native-permissions: ^4.1.5
     react-native-tts: ^4.1.1
     whisper.rn: ^0.4.3

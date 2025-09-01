@@ -4,6 +4,17 @@ This is a new [**React Native**](https://reactnative.dev) project, bootstrapped 
 
 > **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
 
+## ⚠️ Important: Real Device Required
+
+**This example app must be run on a real physical device, not an emulator or simulator.**
+
+This app demonstrates the React Native Voice Agent library, which downloads and runs large AI models locally:
+
+- Whisper model for speech-to-text (39MB - 1.5GB depending on model)
+- Llama model for language processing (1-8GB depending on model)
+
+Emulators and simulators cannot handle these requirements and will not work properly. Use a real iOS or Android device connected via USB.
+
 ## Step 1: Start Metro
 
 First, you will need to run **Metro**, the JavaScript build tool for React Native.
@@ -58,7 +69,9 @@ npm run ios
 yarn ios
 ```
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+If everything is set up correctly, you should see your new app running on your connected device.
+
+**Note**: The first time you run the app, it will download the required AI models (1-2GB total). This may take several minutes depending on your internet connection. The models will be cached locally for future use.
 
 This is one way to run your app — you can also build it directly from Android Studio or Xcode.
 

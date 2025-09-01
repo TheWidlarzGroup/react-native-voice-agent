@@ -17,7 +17,7 @@ React Native library that provides AI voice assistant experience using Whisper f
 ## 🎬 Quick Demo
 
 ```typescript
-import { VoiceAgent, useVoiceAgent } from 'react-native-voice-agent';
+import { VoiceAgent, useVoiceAgent } from 'react-native-audio-agent';
 
 // Create agent with offline model
 const offlineAgent = VoiceAgent
@@ -65,12 +65,12 @@ function VoiceChat() {
 ## 📦 Installation
 
 ```bash
-npm install react-native-voice-agent
+npm install react-native-audio-agent
 # or
-yarn add react-native-voice-agent
+yarn add react-native-audio-agent
 
 # Install peer dependencies
-npm install react-native-permissions react-native-tts react-native-fs
+npm install react-native-permissions react-native-tts react-native-fs llama.rn whisper.rn react-native-audio-recorder-player react-native-nitro-modules
 ```
 
 ### iOS Setup
@@ -92,6 +92,24 @@ Add permissions to `android/app/src/main/AndroidManifest.xml`:
 <uses-permission android:name="android.permission.RECORD_AUDIO" />
 <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 ```
+
+## ⚠️ Important: Testing on Real Devices
+
+**This library must be tested on real physical devices, not emulators or simulators.**
+
+The voice agent downloads and runs large AI models (Whisper and Llama) locally on the device. Emulators and simulators:
+
+- Lack the computational resources to run these models effectively
+- May not properly handle model downloading and storage
+- Cannot accurately simulate real-world performance and memory constraints
+- May have audio recording/playback limitations
+
+For the best development and testing experience, always use:
+
+- **iOS**: Real iPhone/iPad devices
+- **Android**: Physical Android devices
+
+The models will be downloaded automatically on first use and cached locally for subsequent sessions.
 
 ## 🚀 Tech Stack
 
@@ -188,7 +206,7 @@ voice.getDownloadInfo(); // Model download details
 ### Basic Voice Chat
 
 ```typescript
-import { VoiceAgent, VoiceAgentButton } from 'react-native-voice-agent';
+import { VoiceAgent, VoiceAgentButton } from 'react-native-audio-agent';
 
 const agent = VoiceAgent
   .create()
@@ -270,8 +288,8 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 ### Development Setup
 
 ```bash
-git clone https://github.com/TheWidlarzGroup/react-native-voice-agent
-cd react-native-voice-agent
+git clone https://github.com/TheWidlarzGroup/react-native-audio-agent
+cd react-native-audio-agent
 yarn install
 
 # Run example app
