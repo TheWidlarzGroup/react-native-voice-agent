@@ -3,6 +3,7 @@ import AudioRecorderPlayer, {
   AudioSourceAndroidType,
   OutputFormatAndroidType,
   AVLinearPCMBitDepthKeyIOSType,
+  type AVEncodingOption,
 } from 'react-native-audio-recorder-player';
 import { Platform } from 'react-native';
 import RNFS from 'react-native-fs';
@@ -82,18 +83,40 @@ export class AudioRecordingService {
     }
 
     if (this.isRecording) {
-      return;
+      // Force cleanup if we think we're recording but failed
+      try {
+        await this.stopRecording();
+      } catch (cleanupError) {
+        console.warn('Failed to cleanup previous recording:', cleanupError);
+      }
+    }
+
+    // Ensure clean slate - always stop any existing recording first
+    try {
+      await this.audioRecorderPlayer.stopRecorder();
+      this.audioRecorderPlayer.removeRecordBackListener();
+    } catch (cleanupError) {
+      // Ignore cleanup errors - this is expected if nothing was recording
     }
 
     try {
       await this.audioSessionManager.activateSession();
+
+      // Generate unique recording path to avoid file conflicts
+      const timestamp = Date.now();
+      this.recordingPath = `${
+        Platform.OS === 'ios'
+          ? RNFS.DocumentDirectoryPath
+          : RNFS.ExternalDirectoryPath
+      }/voice_recording_${timestamp}.wav`;
+
       const audioSet = {
         AudioEncoderAndroid: AudioEncoderAndroidType.AAC,
         AudioSampleRateAndroid: this.options.sampleRate,
         OutputFormatAndroid: OutputFormatAndroidType.MPEG_4,
         AudioSourceAndroid: AudioSourceAndroidType.MIC,
 
-        AVFormatIDKeyIOS: 'lpcm' as const,
+        AVFormatIDKeyIOS: 'lpcm' as AVEncodingOption,
         AVSampleRateKeyIOS: this.options.sampleRate,
         AVNumberOfChannelsKeyIOS: this.options.channels,
         AVLinearPCMBitDepthKeyIOS: AVLinearPCMBitDepthKeyIOSType.bit16,
@@ -102,16 +125,29 @@ export class AudioRecordingService {
         AVLinearPCMIsNonInterleavedIOS: false,
       };
 
-      await this.audioRecorderPlayer.startRecorder(
+      const result = await this.audioRecorderPlayer.startRecorder(
         this.recordingPath,
         audioSet
       );
 
-      this.isRecording = true;
-
-      this.audioRecorderPlayer.addRecordBackListener(() => {});
+      // Check if recording actually started
+      if (result && result.includes(this.recordingPath)) {
+        this.isRecording = true;
+        this.audioRecorderPlayer.addRecordBackListener(() => {});
+        console.log('🎤 Recording started successfully');
+      } else {
+        throw new Error('Recording did not start properly');
+      }
     } catch (error) {
       this.isRecording = false;
+      // Clean up on failure
+      try {
+        await this.audioRecorderPlayer.stopRecorder();
+        this.audioRecorderPlayer.removeRecordBackListener();
+      } catch (cleanupError) {
+        // Ignore cleanup errors
+      }
+
       throw createServiceError(
         'audio',
         'RECORDING_START_FAILED',

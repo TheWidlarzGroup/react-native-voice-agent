@@ -11,16 +11,24 @@
     "build:android": "npx expo run:android"
   },
   "dependencies": {
-    "@react-native-voice/voice": "^3.2.4",
     "expo": "~53.0.22",
     "expo-status-bar": "~2.2.3",
+    "llama.rn": "^0.6.10",
     "react": "19.0.0",
     "react-native": "0.79.6",
-    "react-native-video": "^6.16.1"
+    "react-native-audio-agent": "*",
+    "react-native-audio-recorder-player": "^4.3.0",
+    "react-native-fs": "^2.20.0",
+    "react-native-nitro-modules": "^0.28.1",
+    "react-native-permissions": "^4.1.5",
+    "react-native-tts": "^4.1.1",
+    "react-native-video": "^6.16.1",
+    "whisper.rn": "^0.4.3"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
     "@types/react": "~19.0.10",
+    "react-native-monorepo-config": "^0.1.9",
     "typescript": "~5.8.3"
   },
   "private": true

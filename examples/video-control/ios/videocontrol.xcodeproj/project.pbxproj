@@ -7,31 +7,29 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		061155E4B28543B95B27ADC8 /* libPods-videocontrol.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DBBD1A004D64201DB3F81F11 /* libPods-videocontrol.a */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
-		5D0664FBF1FCFE965F86386E /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 0EFEA0924C1C5DB21A781D8E /* PrivacyInfo.xcprivacy */; };
-		68FCAA54B001467DA364D2CB /* noop-file.swift in Sources */ = {isa = PBXBuildFile; fileRef = 454AF9C9B7DA48CEA3474E43 /* noop-file.swift */; };
+		5ED729A87C5B1AF4F5CBDC0E /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED4D4F679E24107C1496EB5B /* ExpoModulesProvider.swift */; };
+		B2B68A26E3CBF353176126AA /* libPods-videocontrol.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F64BB097D6DFD4D7B479927E /* libPods-videocontrol.a */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
-		DBB5649FB6A11CA816B7D387 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CE9BE5BA7ABF49D742C0C28 /* ExpoModulesProvider.swift */; };
+		E2BFE5CC72FFF8C010929A35 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 74A4814666CDEECC7F1DD0F4 /* PrivacyInfo.xcprivacy */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		0EFEA0924C1C5DB21A781D8E /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = videocontrol/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* videocontrol.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = videocontrol.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = videocontrol/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = videocontrol/Info.plist; sourceTree = "<group>"; };
-		149C8E38CDFDBAF91606DC18 /* Pods-videocontrol.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-videocontrol.release.xcconfig"; path = "Target Support Files/Pods-videocontrol/Pods-videocontrol.release.xcconfig"; sourceTree = "<group>"; };
-		43CD4753DA4DFDAE3E2EBB4A /* Pods-videocontrol.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-videocontrol.debug.xcconfig"; path = "Target Support Files/Pods-videocontrol/Pods-videocontrol.debug.xcconfig"; sourceTree = "<group>"; };
-		454AF9C9B7DA48CEA3474E43 /* noop-file.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = "noop-file.swift"; path = "videocontrol/noop-file.swift"; sourceTree = "<group>"; };
-		4CE9BE5BA7ABF49D742C0C28 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-videocontrol/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
+		14873A68BFD3789A3FEB305E /* Pods-videocontrol.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-videocontrol.debug.xcconfig"; path = "Target Support Files/Pods-videocontrol/Pods-videocontrol.debug.xcconfig"; sourceTree = "<group>"; };
+		74A4814666CDEECC7F1DD0F4 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = videocontrol/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		8DAFBBC45021FAEA8D09F9F0 /* Pods-videocontrol.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-videocontrol.release.xcconfig"; path = "Target Support Files/Pods-videocontrol/Pods-videocontrol.release.xcconfig"; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = videocontrol/SplashScreen.storyboard; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
-		DBBD1A004D64201DB3F81F11 /* libPods-videocontrol.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-videocontrol.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		ED4D4F679E24107C1496EB5B /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-videocontrol/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = videocontrol/AppDelegate.swift; sourceTree = "<group>"; };
 		F11748442D0722820044C1D9 /* videocontrol-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "videocontrol-Bridging-Header.h"; path = "videocontrol/videocontrol-Bridging-Header.h"; sourceTree = "<group>"; };
+		F64BB097D6DFD4D7B479927E /* libPods-videocontrol.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-videocontrol.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -39,7 +37,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				061155E4B28543B95B27ADC8 /* libPods-videocontrol.a in Frameworks */,
+				B2B68A26E3CBF353176126AA /* libPods-videocontrol.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -55,34 +53,25 @@
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				454AF9C9B7DA48CEA3474E43 /* noop-file.swift */,
-				0EFEA0924C1C5DB21A781D8E /* PrivacyInfo.xcprivacy */,
+				74A4814666CDEECC7F1DD0F4 /* PrivacyInfo.xcprivacy */,
 			);
 			name = videocontrol;
-			sourceTree = "<group>";
-		};
-		1F552612DF1F3243516D9BE4 /* ExpoModulesProviders */ = {
-			isa = PBXGroup;
-			children = (
-				C1EB5D088C7C329A0FBA9959 /* videocontrol */,
-			);
-			name = ExpoModulesProviders;
 			sourceTree = "<group>";
 		};
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				DBBD1A004D64201DB3F81F11 /* libPods-videocontrol.a */,
+				F64BB097D6DFD4D7B479927E /* libPods-videocontrol.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		7EF7173B627505A141A5DA56 /* Pods */ = {
+		30821D0DDF04AC0FBE29E306 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				43CD4753DA4DFDAE3E2EBB4A /* Pods-videocontrol.debug.xcconfig */,
-				149C8E38CDFDBAF91606DC18 /* Pods-videocontrol.release.xcconfig */,
+				14873A68BFD3789A3FEB305E /* Pods-videocontrol.debug.xcconfig */,
+				8DAFBBC45021FAEA8D09F9F0 /* Pods-videocontrol.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -101,8 +90,8 @@
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
-				7EF7173B627505A141A5DA56 /* Pods */,
-				1F552612DF1F3243516D9BE4 /* ExpoModulesProviders */,
+				30821D0DDF04AC0FBE29E306 /* Pods */,
+				F5F848C9C4396020502A51AB /* ExpoModulesProviders */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -126,12 +115,20 @@
 			path = videocontrol/Supporting;
 			sourceTree = "<group>";
 		};
-		C1EB5D088C7C329A0FBA9959 /* videocontrol */ = {
+		C29B7442F60067F1253F064D /* videocontrol */ = {
 			isa = PBXGroup;
 			children = (
-				4CE9BE5BA7ABF49D742C0C28 /* ExpoModulesProvider.swift */,
+				ED4D4F679E24107C1496EB5B /* ExpoModulesProvider.swift */,
 			);
 			name = videocontrol;
+			sourceTree = "<group>";
+		};
+		F5F848C9C4396020502A51AB /* ExpoModulesProviders */ = {
+			isa = PBXGroup;
+			children = (
+				C29B7442F60067F1253F064D /* videocontrol */,
+			);
+			name = ExpoModulesProviders;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -142,13 +139,13 @@
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "videocontrol" */;
 			buildPhases = (
 				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
-				9F936884A39FE845A50204BE /* [Expo] Configure project */,
+				5CE556590F23F1F013B51754 /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
-				6F3269DD37305C5182BE4D69 /* [CP] Embed Pods Frameworks */,
+				B8D9CB201CDC1EAC5F5E1861 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -198,7 +195,7 @@
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				5D0664FBF1FCFE965F86386E /* PrivacyInfo.xcprivacy in Resources */,
+				E2BFE5CC72FFF8C010929A35 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -242,23 +239,24 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		6F3269DD37305C5182BE4D69 /* [CP] Embed Pods Frameworks */ = {
+		5CE556590F23F1F013B51754 /* [Expo] Configure project */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-videocontrol/Pods-videocontrol-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
+			inputFileListPaths = (
 			);
-			name = "[CP] Embed Pods Frameworks";
+			inputPaths = (
+			);
+			name = "[Expo] Configure project";
+			outputFileListPaths = (
+			);
 			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-videocontrol/Pods-videocontrol-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
+			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-videocontrol/expo-configure-project.sh\"\n";
 		};
 		800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -292,24 +290,27 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-videocontrol/Pods-videocontrol-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		9F936884A39FE845A50204BE /* [Expo] Configure project */ = {
+		B8D9CB201CDC1EAC5F5E1861 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
-			inputFileListPaths = (
-			);
 			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-videocontrol/Pods-videocontrol-frameworks.sh",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/llama-rn/rnllama.framework/rnllama",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/whisper-rn/rnwhisper.framework/rnwhisper",
 			);
-			name = "[Expo] Configure project";
-			outputFileListPaths = (
-			);
+			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/rnllama.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/rnwhisper.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-videocontrol/expo-configure-project.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-videocontrol/Pods-videocontrol-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -319,8 +320,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
-				68FCAA54B001467DA364D2CB /* noop-file.swift in Sources */,
-				DBB5649FB6A11CA816B7D387 /* ExpoModulesProvider.swift in Sources */,
+				5ED729A87C5B1AF4F5CBDC0E /* ExpoModulesProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -329,10 +329,11 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 43CD4753DA4DFDAE3E2EBB4A /* Pods-videocontrol.debug.xcconfig */;
+			baseConfigurationReference = 14873A68BFD3789A3FEB305E /* Pods-videocontrol.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = videocontrol/videocontrol.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 8Y2L2HA25J;
 				ENABLE_BITCODE = NO;
@@ -365,10 +366,11 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 149C8E38CDFDBAF91606DC18 /* Pods-videocontrol.release.xcconfig */;
+			baseConfigurationReference = 8DAFBBC45021FAEA8D09F9F0 /* Pods-videocontrol.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = videocontrol/videocontrol.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 8Y2L2HA25J;
 				INFOPLIST_FILE = videocontrol/Info.plist;

@@ -1,4 +1,4 @@
-import { BaseOnlineLLMProvider } from '../OnlineLLMService';
+import { BaseOnlineLLMProvider } from './BaseOnlineLLMProvider';
 import type { ConversationMessage, OpenAIConfig } from '../../types';
 import { createServiceError } from '../../types';
 

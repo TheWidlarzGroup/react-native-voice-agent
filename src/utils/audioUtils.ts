@@ -12,29 +12,17 @@ export class AudioSessionManager {
     return AudioSessionManager.instance;
   }
 
-  async configureAudioSession(config: AudioSessionConfig): Promise<void> {
+  async configureAudioSession(_config: AudioSessionConfig): Promise<void> {
     try {
-      if (Platform.OS === 'ios') {
-        await this.configureIOSAudioSession(config);
-      } else if (Platform.OS === 'android') {
-        await this.configureAndroidAudioSession(config);
-      }
+      // Temporary fix: Skip audio session configuration to avoid conflicts with react-native-video
+      // The react-native-audio-recorder-player will handle its own audio session
+      console.log(
+        '🔇 Skipping audio session configuration to avoid conflicts with video player'
+      );
       this.isSessionActive = true;
     } catch (error) {
       throw new Error(`Failed to configure audio session: ${error}`);
     }
-  }
-
-  private async configureIOSAudioSession(
-    _config: AudioSessionConfig
-  ): Promise<void> {
-    // This would use native iOS AudioSession APIs
-  }
-
-  private async configureAndroidAudioSession(
-    _config: AudioSessionConfig
-  ): Promise<void> {
-    // This would use native Android AudioManager APIs
   }
 
   async activateSession(): Promise<void> {
@@ -45,11 +33,10 @@ export class AudioSessionManager {
     }
 
     try {
-      if (Platform.OS === 'ios') {
-        // Activate iOS audio session
-      } else if (Platform.OS === 'android') {
-        // Configure Android audio focus
-      }
+      // Temporary fix: Skip audio session activation to avoid conflicts
+      console.log(
+        '🔇 Skipping audio session activation to avoid conflicts with video player'
+      );
     } catch (error) {
       throw new Error(`Failed to activate audio session: ${error}`);
     }

@@ -96,7 +96,8 @@
     "whisper.rn": "^0.4.3"
   },
   "workspaces": [
-    "example"
+    "example",
+    "examples/*"
   ],
   "packageManager": "yarn@3.6.1",
   "jest": {

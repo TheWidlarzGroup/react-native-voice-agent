@@ -390,6 +390,7 @@ export interface VoiceAgentBuilder {
   enableGPUAcceleration(enabled: boolean): VoiceAgentBuilder;
   withMaxHistoryLength(length: number): VoiceAgentBuilder;
   enableVAD(enabled: boolean): VoiceAgentBuilder;
+  speechOnly(): VoiceAgentBuilder;
   build(): VoiceAgent;
 }
 

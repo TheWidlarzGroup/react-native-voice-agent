@@ -44,6 +44,10 @@
       <key>NSAllowsLocalNetworking</key>
       <true/>
     </dict>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>This app needs access to microphone for voice control of video playback.</string>
+    <key>NSSpeechRecognitionUsageDescription</key>
+    <string>This app uses speech recognition to understand voice commands for controlling video playback.</string>
     <key>UILaunchStoryboardName</key>
     <string>SplashScreen</string>
     <key>UIRequiredDeviceCapabilities</key>
@@ -70,9 +74,5 @@
     <string>Light</string>
     <key>UIViewControllerBasedStatusBarAppearance</key>
     <false/>
-    <key>NSMicrophoneUsageDescription</key>
-    <string>This app needs access to microphone for voice control of video playback.</string>
-    <key>NSSpeechRecognitionUsageDescription</key>
-    <string>This app uses speech recognition to understand voice commands for controlling video playback.</string>
   </dict>
 </plist>

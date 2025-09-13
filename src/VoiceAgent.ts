@@ -46,8 +46,32 @@ export class VoiceAgentImpl implements IVoiceAgent {
       enableGPUAcceleration: config.enableGPUAcceleration,
     });
 
-    // Initialize LLM service based on configuration
-    if (config.llmConfig.provider === 'offline') {
+    // Initialize LLM service based on configuration (skip for speech-only mode)
+    if (config.llmConfig.model === 'tiny-placeholder') {
+      // Speech-only mode - create a minimal dummy service
+      this.llamaService = {
+        initialize: async () => {},
+        generateResponse: async () => '',
+        dispose: async () => {},
+        setSystemPrompt: () => {},
+        clearHistory: () => {},
+        getHistory: () => [],
+        setMaxHistoryLength: () => {},
+        updateModelSettings: async () => {},
+        getModelInfo: () => ({
+          name: 'speech-only',
+          isLoaded: true,
+          settings: {} as any,
+        }),
+        isReady: () => true,
+        estimateTokenCount: () => 0,
+        getStats: () => ({
+          messageCount: 0,
+          estimatedTokens: 0,
+          historyLength: 0,
+        }),
+      } as any;
+    } else if (config.llmConfig.provider === 'offline') {
       this.llamaService = new LlamaService({
         modelName: config.llmConfig.model,
         maxTokens: config.llmConfig.maxTokens || 256,
@@ -685,6 +709,20 @@ export class VoiceAgentBuilderImpl implements VoiceAgentBuilder {
 
   withMaxHistoryLength(length: number): VoiceAgentBuilder {
     this.config.maxHistoryLength = length;
+    return this;
+  }
+
+  speechOnly(): VoiceAgentBuilder {
+    // Set a minimal LLM config that won't be used
+    this.config.llmConfig = {
+      provider: 'offline',
+      model: 'tiny-placeholder',
+      maxTokens: 1,
+      temperature: 0.1,
+      topP: 0.1,
+      enableGPUAcceleration: false,
+    };
+    this.config.systemPrompt = 'Speech recognition only mode.';
     return this;
   }
 
