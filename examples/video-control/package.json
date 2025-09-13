@@ -3,10 +3,12 @@
   "version": "1.0.0",
   "main": "index.ts",
   "scripts": {
-    "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
-    "web": "expo start --web"
+    "start": "npx expo start",
+    "android": "npx expo start --android",
+    "ios": "npx expo start --ios",
+    "web": "npx expo start --web",
+    "build:ios": "npx expo run:ios",
+    "build:android": "npx expo run:android"
   },
   "dependencies": {
     "@react-native-voice/voice": "^3.2.4",
@@ -14,7 +16,6 @@
     "expo-status-bar": "~2.2.3",
     "react": "19.0.0",
     "react-native": "0.79.6",
-    "react-native-permissions": "^5.4.2",
     "react-native-video": "^6.16.1"
   },
   "devDependencies": {

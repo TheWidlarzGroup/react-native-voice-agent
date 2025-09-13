@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-inline-styles */
 import { useRef, useEffect, useState } from 'react';
 import {
   View,
@@ -12,8 +13,8 @@ import Video from 'react-native-video';
 import type { VideoRef } from 'react-native-video';
 import Voice from '@react-native-voice/voice';
 import type { SpeechResultsEvent } from '@react-native-voice/voice';
-import { request, PERMISSIONS, RESULTS } from 'react-native-permissions';
-import { matchIntent } from '../../src/integrations/videoController';
+import { matchIntent } from './src/videoController';
+import type { IntentMatch } from './src/videoController';
 
 export default function App() {
   const videoRef = useRef<VideoRef>(null);
@@ -27,118 +28,11 @@ export default function App() {
     currentTime: 0,
     volume: 1.0,
   });
+  const [permissionGranted, setPermissionGranted] = useState<boolean | null>(
+    null
+  );
 
   useEffect(() => {
-    const executeVideoCommand = async (intentResult: any) => {
-      const video = videoRef.current;
-      if (!video) {
-        console.error('Video ref not available');
-        return;
-      }
-
-      try {
-        switch (intentResult.intent) {
-          case 'PAUSE':
-            video.pause();
-            setVideoState((prev) => ({ ...prev, paused: true }));
-            break;
-          case 'PLAY':
-          case 'RESUME':
-            video.resume();
-            setVideoState((prev) => ({ ...prev, paused: false }));
-            break;
-          case 'SEEK_REL':
-            if (intentResult.slots.seconds) {
-              const newTime = Math.max(
-                0,
-                videoState.currentTime + intentResult.slots.seconds
-              );
-              video.seek(newTime);
-              setVideoState((prev) => ({ ...prev, currentTime: newTime }));
-            }
-            break;
-          case 'SEEK_ABS':
-            if (intentResult.slots.timestamp) {
-              video.seek(intentResult.slots.timestamp);
-              setVideoState((prev) => ({
-                ...prev,
-                currentTime: intentResult.slots.timestamp,
-              }));
-            }
-            break;
-          case 'VOLUME_UP': {
-            const newVolumeUp = Math.min(1.0, videoState.volume + 0.1);
-            video.setVolume(newVolumeUp);
-            setVideoState((prev) => ({ ...prev, volume: newVolumeUp }));
-            break;
-          }
-          case 'VOLUME_DOWN': {
-            const newVolumeDown = Math.max(0, videoState.volume - 0.1);
-            video.setVolume(newVolumeDown);
-            setVideoState((prev) => ({ ...prev, volume: newVolumeDown }));
-            break;
-          }
-          case 'VOLUME_SET':
-            if (intentResult.slots.percent !== undefined) {
-              const volumeLevel = intentResult.slots.percent / 100;
-              video.setVolume(volumeLevel);
-              setVideoState((prev) => ({ ...prev, volume: volumeLevel }));
-            }
-            break;
-          case 'MUTE':
-            video.setVolume(0);
-            setVideoState((prev) => ({ ...prev, muted: true }));
-            break;
-          case 'UNMUTE':
-            video.setVolume(videoState.volume);
-            setVideoState((prev) => ({ ...prev, muted: false }));
-            break;
-          case 'FULLSCREEN_ENTER':
-            video.setFullScreen(true);
-            setVideoState((prev) => ({ ...prev, fullscreen: true }));
-            break;
-          case 'FULLSCREEN_EXIT':
-            video.setFullScreen(false);
-            setVideoState((prev) => ({ ...prev, fullscreen: false }));
-            break;
-          case 'RESTART':
-            video.seek(0);
-            video.resume();
-            setVideoState((prev) => ({
-              ...prev,
-              currentTime: 0,
-              paused: false,
-            }));
-            break;
-          default:
-            console.warn(
-              `Intent ${intentResult.intent} not implemented in demo`
-            );
-            break;
-        }
-      } catch (error) {
-        console.error('Error executing video command:', error);
-      }
-    };
-
-    const handleVoiceCommand = (text: string) => {
-      console.log('Processing voice command:', text);
-
-      try {
-        const intentResult = matchIntent(text);
-        if (intentResult) {
-          console.log('Intent matched:', intentResult);
-          setLastCommand(`${intentResult.intent}: ${text}`);
-          executeVideoCommand(intentResult);
-        } else {
-          setLastCommand(`No intent matched for: ${text}`);
-        }
-      } catch (error) {
-        console.error('Error processing voice command:', error);
-        setLastCommand(`Error processing: ${text}`);
-      }
-    };
-
     const setupVoiceRecognition = () => {
       Voice.onSpeechStart = () => {
         console.log('Speech started');
@@ -155,32 +49,148 @@ export default function App() {
         handleVoiceCommand(recognizedTextResult);
       };
 
-      Voice.onSpeechError = (event: any) => {
+      Voice.onSpeechError = (event: unknown) => {
         console.error('Speech error:', event);
         setIsListening(false);
       };
     };
 
     setupVoiceRecognition();
-    requestMicrophonePermission();
 
     return () => {
       Voice.destroy();
     };
-  }, [videoState.currentTime, videoState.volume]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const requestMicrophonePermission = async () => {
+  const executeVideoCommand = async (intentResult: IntentMatch) => {
+    const video = videoRef.current;
+    if (!video) {
+      console.error('Video ref not available');
+      return;
+    }
+
     try {
-      const result = await request(PERMISSIONS.ANDROID.RECORD_AUDIO);
-      if (result !== RESULTS.GRANTED) {
-        Alert.alert(
-          'Permission Required',
-          'Microphone permission is required for voice control',
-          [{ text: 'OK' }]
-        );
+      switch (intentResult.intent) {
+        case 'PAUSE':
+          video.pause();
+          setVideoState((prev) => ({ ...prev, paused: true }));
+          break;
+        case 'PLAY':
+        case 'RESUME':
+          video.resume();
+          setVideoState((prev) => ({ ...prev, paused: false }));
+          break;
+        case 'SEEK_REL':
+          if ('seconds' in intentResult.slots && intentResult.slots.seconds) {
+            const newTime = Math.max(
+              0,
+              videoState.currentTime + intentResult.slots.seconds
+            );
+            video.seek(newTime);
+            setVideoState((prev) => ({ ...prev, currentTime: newTime }));
+          }
+          break;
+        case 'SEEK_ABS':
+          if (
+            'timestamp' in intentResult.slots &&
+            intentResult.slots.timestamp !== undefined
+          ) {
+            const timestamp = intentResult.slots.timestamp;
+            video.seek(timestamp);
+            setVideoState((prev) => ({
+              ...prev,
+              currentTime: timestamp,
+            }));
+          }
+          break;
+        case 'VOLUME_UP': {
+          const newVolumeUp = Math.min(1.0, videoState.volume + 0.1);
+          video.setVolume(newVolumeUp);
+          setVideoState((prev) => ({ ...prev, volume: newVolumeUp }));
+          break;
+        }
+        case 'VOLUME_DOWN': {
+          const newVolumeDown = Math.max(0, videoState.volume - 0.1);
+          video.setVolume(newVolumeDown);
+          setVideoState((prev) => ({ ...prev, volume: newVolumeDown }));
+          break;
+        }
+        case 'VOLUME_SET':
+          if (
+            'percent' in intentResult.slots &&
+            intentResult.slots.percent !== undefined
+          ) {
+            const volumeLevel = intentResult.slots.percent / 100;
+            video.setVolume(volumeLevel);
+            setVideoState((prev) => ({ ...prev, volume: volumeLevel }));
+          }
+          break;
+        case 'MUTE':
+          video.setVolume(0);
+          setVideoState((prev) => ({ ...prev, muted: true }));
+          break;
+        case 'UNMUTE':
+          video.setVolume(videoState.volume);
+          setVideoState((prev) => ({ ...prev, muted: false }));
+          break;
+        case 'FULLSCREEN_ENTER':
+          video.setFullScreen(true);
+          setVideoState((prev) => ({ ...prev, fullscreen: true }));
+          break;
+        case 'FULLSCREEN_EXIT':
+          video.setFullScreen(false);
+          setVideoState((prev) => ({ ...prev, fullscreen: false }));
+          break;
+        case 'RESTART':
+          video.seek(0);
+          video.resume();
+          setVideoState((prev) => ({
+            ...prev,
+            currentTime: 0,
+            paused: false,
+          }));
+          break;
+        default:
+          console.warn(`Intent ${intentResult.intent} not implemented in demo`);
+          break;
       }
     } catch (error) {
+      console.error('Error executing video command:', error);
+    }
+  };
+
+  const handleVoiceCommand = (text: string) => {
+    console.log('Processing voice command:', text);
+
+    try {
+      const intentResult = matchIntent(text);
+      if (intentResult) {
+        console.log('Intent matched:', intentResult);
+        setLastCommand(`${intentResult.intent}: ${text}`);
+        executeVideoCommand(intentResult);
+      } else {
+        setLastCommand(`No intent matched for: ${text}`);
+      }
+    } catch (error) {
+      console.error('Error processing voice command:', error);
+      setLastCommand(`Error processing: ${text}`);
+    }
+  };
+
+  // Check microphone permission on component mount
+  useEffect(() => {
+    checkMicrophonePermission();
+  }, []);
+
+  const checkMicrophonePermission = async () => {
+    try {
+      // For Expo managed workflow, we'll try to start voice recognition
+      // and handle permission errors there
+      setPermissionGranted(true);
+    } catch (error) {
       console.error('Permission request failed:', error);
+      setPermissionGranted(false);
     }
   };
 
@@ -195,10 +205,34 @@ export default function App() {
       setIsListening(true);
       setRecognizedText('');
       await Voice.start('en-US');
+
+      // If we get here, permission was granted
+      if (permissionGranted === false) {
+        setPermissionGranted(true);
+      }
     } catch (error) {
       console.error('Error starting voice recognition:', error);
       setIsListening(false);
-      Alert.alert('Error', 'Failed to start voice recognition');
+
+      // Handle permission errors
+      if (
+        (typeof error === 'object' &&
+          error !== null &&
+          'message' in error &&
+          typeof error.message === 'string' &&
+          error.message.toLowerCase().includes('permission')) ||
+        (error instanceof Error &&
+          error.message.toLowerCase().includes('denied'))
+      ) {
+        setPermissionGranted(false);
+        Alert.alert(
+          'Permission Required',
+          'Microphone permission is required for voice control. Please allow access to the microphone when prompted and try again.',
+          [{ text: 'OK', onPress: () => setPermissionGranted(true) }]
+        );
+      } else {
+        Alert.alert('Error', 'Failed to start voice recognition');
+      }
     }
   };
 
@@ -248,13 +282,32 @@ export default function App() {
         style={styles.controlsContainer}
         contentContainerStyle={styles.controlsContent}
       >
+        {/* Permission Status */}
+        {permissionGranted === false && (
+          <View
+            style={[styles.statusContainer, { backgroundColor: '#FF3B30' }]}
+          >
+            <Text style={[styles.statusText, { color: '#fff' }]}>
+              ⚠️ Microphone permission required for voice control
+            </Text>
+          </View>
+        )}
+
         {/* Voice Control Button */}
         <TouchableOpacity
-          style={[styles.voiceButton, isListening && styles.voiceButtonActive]}
+          style={[
+            styles.voiceButton,
+            isListening && styles.voiceButtonActive,
+            permissionGranted === false && styles.voiceButtonDisabled,
+          ]}
           onPress={isListening ? stopListening : startListening}
         >
           <Text style={styles.voiceButtonText}>
-            {isListening ? '🛑 Stop Listening' : '🎤 Start Voice Control'}
+            {permissionGranted === false
+              ? '❌ Permission Required - Tap to Retry'
+              : isListening
+                ? '🛑 Stop Listening'
+                : '🎤 Start Voice Control'}
           </Text>
         </TouchableOpacity>
 
@@ -301,19 +354,27 @@ export default function App() {
         <View style={styles.helpContainer}>
           <Text style={styles.helpTitle}>Try these voice commands:</Text>
           <Text style={styles.helpText}>• "pause" / "play" / "resume"</Text>
+          <Text style={styles.helpText}>• "please pause the video"</Text>
+          <Text style={styles.helpText}>• "can you play the video"</Text>
           <Text style={styles.helpText}>
             • "skip ahead 10" / "rewind 30 seconds"
           </Text>
+          <Text style={styles.helpText}>• "please skip ahead"</Text>
           <Text style={styles.helpText}>
             • "go to 2 minutes" / "go to 1:30"
           </Text>
           <Text style={styles.helpText}>
             • "volume up" / "volume down" / "mute"
           </Text>
+          <Text style={styles.helpText}>• "please turn up the volume"</Text>
+          <Text style={styles.helpText}>
+            • "make it louder" / "turn off sound"
+          </Text>
           <Text style={styles.helpText}>• "set volume to 50 percent"</Text>
           <Text style={styles.helpText}>
             • "fullscreen" / "exit fullscreen"
           </Text>
+          <Text style={styles.helpText}>• "please go fullscreen"</Text>
           <Text style={styles.helpText}>• "restart" / "unmute"</Text>
         </View>
       </ScrollView>
@@ -349,6 +410,9 @@ const styles = StyleSheet.create({
   },
   voiceButtonActive: {
     backgroundColor: '#FF3B30',
+  },
+  voiceButtonDisabled: {
+    backgroundColor: '#666666',
   },
   voiceButtonText: {
     color: '#fff',
